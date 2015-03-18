@@ -1,0 +1,9 @@
+{
+  "name": "transForm",
+  "version": "1.0.0",
+  "main": "transForm.js",
+  "ignore": [
+    "test/*",
+    ".*"
+  ]
+}

@@ -1,0 +1,60 @@
+<html>
+<body>
+<div id="myForm">
+  <input name="input" value="input"/>
+  <input name="test.checkno" type="checkbox" />
+  <input name="test.checkdefault" type="checkbox" checked />
+  <input name="test.checkwithvalue" type="checkbox" value="myValue" checked />
+  <input name="test.radio" type="radio" value="option1" checked />
+  <input name="test.radio" type="radio" value="option2"  />
+  <input name="test.radio" type="radio" value="option3"  />
+  <textarea name="test.textarea">default text</textarea>
+  <select name="test.select">
+    <option val="0">0</option>
+    <option val="1" selected>1</option>
+    <option val="2">2</option>
+  </select>
+  <select name="test.multiselect" multiple>
+    <option val="0">0</option>
+    <option val="1" selected>1</option>
+    <option val="2">2</option>
+    <option val="3" selected>3</option>
+    <option val="4">4</option>
+  </select>
+  <input name="custom0" value="custom0" data-custom="foo" />
+  <input name="custom1" value="custom1" data-custom="bar" />
+</div>
+<script src="../transForm.js"></script>
+<script>
+  transForm.deserialize('#myForm', {
+    input: 'javascript',
+    custom0: 'foo',
+    custom1: 'bar',
+    test: {
+      checkno: true,
+      checkdefault: false,
+      checkwithvalue: false,
+      radio: 'option2',
+      textarea: 'random',
+      select: 2,
+      multiselect: ['2','3']
+    }
+  }, function(node, value){
+    var cust = node.getAttribute('data-custom');
+    if(cust){
+      node.value = value;
+      node.style.backgroundColor = '#f00';
+      return true;
+    }
+  });
+  
+  var obj = transForm.serialize('#myForm',function(node){
+    var cust = node.getAttribute('data-custom');
+    if(cust){
+      return {name: cust,value: node.value}
+    }
+  });
+  console.log(obj);
+</script>
+</body>
+</html>
