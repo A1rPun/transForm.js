@@ -1,7 +1,13 @@
 {
   "name": "transForm",
+  "description": "Javascript library for manipulating html forms",
   "version": "1.0.0",
   "main": "transForm.js",
+  "license": "MIT",
+  "keywords": ["form","serialize","deserialize"],
+  "authors": [
+    { "name": "A1rPun", "homepage": "http://www.A1rPun.com"}
+  ]
   "ignore": [
     "test/*",
     ".*"
