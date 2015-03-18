@@ -7,7 +7,7 @@
   "keywords": ["form","serialize","deserialize"],
   "authors": [
     { "name": "A1rPun", "homepage": "http://www.A1rPun.com"}
-  ]
+  ],
   "ignore": [
     "test/*",
     ".*"
