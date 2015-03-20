@@ -1,60 +1,155 @@
 <html>
+<head>
+    <title>transForm.js Test</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #444;
+            color: #FFF;
+        }
+
+        .center {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .blockwrap {
+            width: 100%;
+            display: table;
+        }
+
+        .block {
+            display: table-cell;
+            vertical-align: top;
+            width: 48%;
+            padding: 8px;
+            background: #222;
+        }
+        
+        .block input:not([type="radio"]):not([type="checkbox"]),
+        .block textarea,
+        .block select{
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .block button {
+            width: 100%;
+            height: 30px;
+        }
+
+        #output {
+            height: 430px;
+        }
+    </style>
+</head>
 <body>
-<div id="myForm">
-  <input name="input" value="input"/>
-  <input name="test.checkno" type="checkbox" />
-  <input name="test.checkdefault" type="checkbox" checked />
-  <input name="test.checkwithvalue" type="checkbox" value="myValue" checked />
-  <input name="test.radio" type="radio" value="option1" checked />
-  <input name="test.radio" type="radio" value="option2"  />
-  <input name="test.radio" type="radio" value="option3"  />
-  <textarea name="test.textarea">default text</textarea>
-  <select name="test.select">
-    <option val="0">0</option>
-    <option val="1" selected>1</option>
-    <option val="2">2</option>
-  </select>
-  <select name="test.multiselect" multiple>
-    <option val="0">0</option>
-    <option val="1" selected>1</option>
-    <option val="2">2</option>
-    <option val="3" selected>3</option>
-    <option val="4">4</option>
-  </select>
-  <input name="custom0" value="custom0" data-custom="foo" />
-  <input name="custom1" value="custom1" data-custom="bar" />
-</div>
-<script src="../transForm.js"></script>
+    <div class="center">
+        <h1>transForm.js</h1>
+        <div class="blockwrap">
+            <div class="block">
+                <div id="myForm">
+                    <label>Input</label><br />
+                    <input name="input" value="input" /><br />
+                    <label>Checkboxes</label><br />
+                    <input name="test.checkno" type="checkbox" />
+                    <input name="test.checkdefault" type="checkbox" checked />
+                    <input name="test.checkwithvalue" type="checkbox" value="myValue" checked/><br/>
+                    <label>Checkbox array</label><br />
+                    <input name="test.checkarray[]" type="checkbox" value="1" checked/>
+                    <input name="test.checkarray[]" type="checkbox" value="2" checked />
+                    <input name="test.checkarray[]" type="checkbox" value="3" /><br />
+                    <label>Radiobuttons</label><br />
+                    <input name="test.radio" type="radio" value="option1" checked />
+                    <input name="test.radio" type="radio" value="option2" />
+                    <input name="test.radio" type="radio" value="option3" /><br />
+                    <label>Textarea</label><br />
+                    <textarea name="test.textarea">default text</textarea><br />
+                    <label>Select</label><br />
+                    <select name="test.select">
+                        <option val="0">0</option>
+                        <option val="1" selected>1</option>
+                        <option val="2">2</option>
+                    </select><br />
+                    <label>Multiselect</label><br />
+                    <select name="test.multiselect" multiple>
+                        <option val="0">0</option>
+                        <option val="1" selected>1</option>
+                        <option val="2">2</option>
+                        <option val="3" selected>3</option>
+                        <option val="4">4</option>
+                    </select><br />
+                    <label>Input custom logic</label><br />
+                    <input name="custom0" data-custom="foo" /><br />
+                    <input name="custom1" data-custom="bar" /><br />
+                    <button id="serialize">Serialize</button>
+                </div>
+            </div>
+            <div class="block">
+                <textarea id="output"></textarea>
+                <button id="deserialize">Deserialize</button>
+            </div>
+        </div>
+    </div>
+<script src="../src/transForm.js"></script>
 <script>
-  transForm.deserialize('#myForm', {
-    input: 'javascript',
-    custom0: 'foo',
-    custom1: 'bar',
-    test: {
-      checkno: true,
-      checkdefault: false,
-      checkwithvalue: false,
-      radio: 'option2',
-      textarea: 'random',
-      select: 2,
-      multiselect: ['2','3']
-    }
-  }, function(node, value){
-    var cust = node.getAttribute('data-custom');
-    if(cust){
-      node.value = value;
-      node.style.backgroundColor = '#f00';
-      return true;
-    }
-  });
-  
-  var obj = transForm.serialize('#myForm',function(node){
-    var cust = node.getAttribute('data-custom');
-    if(cust){
-      return {name: cust,value: node.value}
-    }
-  });
-  console.log(obj);
+    (function() {
+        var out = document.getElementById('output'),
+            btnSerialize = document.getElementById('serialize'),
+            btnDeserialize = document.getElementById('deserialize');
+        btnSerialize.addEventListener('click', serialize);
+        btnDeserialize.addEventListener('click', deserialize);
+
+        function deserialize(e) {
+            var myObject;
+            if (e) {
+                myObject = JSON.parse(out.value);
+            } else {
+                myObject = {
+                    input: 'javascript',
+                    test: {
+                        checkno: true,
+                        checkdefault: false,
+                        checkwithvalue: false,
+                        checkarray: ['2', '3'],
+                        radio: 'option2',
+                        textarea: 'random',
+                        select: 2,
+                        multiselect: ['2', '3']
+                    },
+                    custom0: 'foo',
+                    custom1: 'bar'
+                };
+            }
+
+            transForm.deserialize('#myForm', myObject, function(node, value) {
+                var cust = node.getAttribute('data-custom');
+                if (cust) {
+                    node.value = value;
+                    node.style.backgroundColor = '#BADA55';
+                    return true;
+                }
+            });
+        }
+
+        function serialize() {
+            var obj = transForm.serialize('#myForm', function(node) {
+                var cust = node.getAttribute('data-custom');
+                if (cust) {
+                    return { name: node.name, value: cust }
+                }
+            });
+
+            out.value = JSON.stringify(obj, null, 4);
+        }
+
+        deserialize();
+        serialize();
+    }());
 </script>
 </body>
 </html>

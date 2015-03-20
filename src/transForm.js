@@ -3,23 +3,17 @@
     else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
     else this[name] = definition();
 }('transForm', function () {
-    var opts = {
-        delimiter: '.',
-        skipDisabled: true,
-        skipFalsy: true//TODO: skip the falsy values (0, false, null, undefined, '')
-    };
-
     /*
 	 * Deserialize
 	 */
     function deserialize(formEl, data, nodeCallback, options) {
         var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
-		if (!el) throw new Error("Parent element not found.");
-		var inputs = el.querySelectorAll('input,select,textarea');
+        if (!el) throw new Error("Parent element not found.");
+        var inputs = getFields(el),
+            opts = getOptions(options);
         data = data || {};
-        options && setOptions(options);
 
-        var fieldNames = getFieldNames(data);
+        var fieldNames = getFieldNames(data, opts);
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i],
 				value = fieldNames[input.name];
@@ -43,12 +37,12 @@
         var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
         if (!el) throw new Error("Parent element not found.");
         var result = {},
-			inputs = el.querySelectorAll('input,select,textarea');
-        options && setOptions(options);
-        
+			inputs = getFields(el),
+            opts = getOptions(options);
+
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i];
-            
+
             if (!input.name || (opts.skipDisabled && input.disabled)) continue;
 
             var entry = null;
@@ -56,7 +50,7 @@
             if (!entry) entry = getEntryFromInput(input);
 
             if (typeof entry.value === "undefined" || entry.value === null) continue;
-            saveEntryToResult(result, entry, input);
+            saveEntryToResult(result, entry, input, opts);
         }
         return result;
     }
@@ -64,7 +58,7 @@
     /*
 	 * Deserialize functions
 	 */
-    function getFieldNames(obj) {
+    function getFieldNames(obj, options) {
         var root = '',
 			fieldNames = {};
 
@@ -72,17 +66,19 @@
             for (var name in obj) {
                 var item = obj[name];
 
-                if (Array.isArray(item)) {
+                if (isArray(item)) {
                     //if array of objects
                     if (isObject(item[0])) {
                         for (var i = item.length; i--;) {
                             recursion(root + name + '[' + i + '].', item[i]);
                         }
                     } else {
+                        //If the user forgets to type "[]" on multiselects
+                        fieldNames[root + name] = item;
                         fieldNames[root + name + '[]'] = item;
                     }
                 } else if (isObject(item)) {
-                    recursion(root + name + opts.delimiter, item);
+                    recursion(root + name + options.delimiter, item);
                 } else if (obj[name] !== null) {
                     fieldNames[root + name] = item;
                 }
@@ -104,7 +100,7 @@
                         if (value === input.value) input.checked = true;
                         break;
                     case 'checkbox':
-                        if (Array.isArray(value)) {
+                        if (isArray(value)) {
                             input.checked = value.indexOf(input.value) !== -1;
                         } else {
                             input.checked = value === true || value === input.value;
@@ -120,7 +116,7 @@
                 }
                 break;
             case 'select':
-                if (input.multiple && Array.isArray(value)) {
+                if (input.multiple && isArray(value)) {
                     for (var i = input.options.length; i--;) {
                         input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
                     }
@@ -137,10 +133,10 @@
 	 */
     function getEntryFromInput(input) {
         var entry = {
-            name: input.name,
-            value: null
-        },
-			nodeName = input.nodeName.toLowerCase();
+                name: input.name,
+                value: null
+            },
+            nodeName = input.nodeName.toLowerCase();
 
         switch (nodeName) {
             case 'input':
@@ -174,11 +170,11 @@
         return entry;
     }
 
-    function saveEntryToResult(result, entry, input) {
+    function saveEntryToResult(result, entry, input, options) {
         var name = entry.name,
 			arrayPart = /\[\]$/,
 			arrayPartIndex = /\[\d*\]/,
-			parts = name.split(opts.delimiter),
+			parts = name.split(options.delimiter),
 			parent = result;
         //not not accept falsy values in array collections
         if (arrayPart.test(name) && !entry.value) return;
@@ -193,7 +189,7 @@
 					index = split[1].slice(0, -1);
                 part = split[0];
                 //if parent is not an array, make one
-                if (!Array.isArray(parent[part])) {
+                if (!isArray(parent[part])) {
                     parent[part] = [];
                 }
                 //which action depending on last
@@ -239,12 +235,30 @@
     function isNumber(n) {
         return n - parseFloat(n) + 1 >= 0;
     }
+    function isArray(arr) {
+        return !!arr.shift;
+    }
 
     /*
 	 * Main functions
 	 */
-    function setOptions(options) {
+    function getFields(parent) {
+        return parent.querySelectorAll('input,select,textarea');
+    }
+
+    function getOptions(options) {
+        var opts = getDefaultOptions();
         if (options) for (var o in options) opts[o] = options[o];
+        return opts;
+    }
+
+    function getDefaultOptions() {
+        return {
+            delimiter: '.',
+            skipDisabled: true,
+            skipFalsy: false, //TODO: skip the falsy values (0, false, null, undefined, '')
+            useIdOnEmptyName: false
+        };
     }
 
     return {
