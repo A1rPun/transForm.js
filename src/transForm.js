@@ -3,36 +3,15 @@
     else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
     else this[name] = definition();
 }('transForm', function () {
-    /*
-	 * Deserialize
-	 */
-    function deserialize(formEl, data, nodeCallback, options) {
-        var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
-        if (!el) throw new Error("Parent element not found.");
-        var inputs = getFields(el),
-            opts = getOptions(options);
-        data = data || {};
+    var _defaults = {
+        delimiter: '.',
+        skipDisabled: true,
+        skipFalsy: false,
+        useIdOnEmptyName: false,
+        triggerChange: false
+    };
 
-        var fieldNames = getFieldNames(data, opts);
-        for (var i = 0, l = inputs.length; i < l; i++) {
-            var input = inputs[i],
-				value = fieldNames[input.name];
-
-            if (typeof value === "undefined" || value === null) {
-                input.value = "";
-                continue;
-            }
-
-            var mutated = nodeCallback && nodeCallback(input, value);
-            if (!mutated) {
-                setValueToInput(input, value);
-            }
-        }
-    }
-
-    /*
-	 * Serialize
-	 */
+    /* Serialize */
     function serialize(formEl, nodeCallback, options) {
         var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
         if (!el) throw new Error("Parent element not found.");
@@ -41,101 +20,29 @@
             opts = getOptions(options);
 
         for (var i = 0, l = inputs.length; i < l; i++) {
-            var input = inputs[i];
+            var input = inputs[i],
+                key = input.name || opts.useIdOnEmptyName && input.id;
 
-            if (!input.name || (opts.skipDisabled && input.disabled)) continue;
+            if (!key || (opts.skipDisabled && input.disabled))
+                continue;
 
             var entry = null;
             if (nodeCallback) entry = nodeCallback(input);
             if (!entry) entry = getEntryFromInput(input);
 
-            if (typeof entry.value === "undefined" || entry.value === null) continue;
+            if ((opts.skipFalsy && !entry.value)
+                || typeof entry.value === "undefined" || entry.value === null)
+                continue;
             saveEntryToResult(result, entry, input, opts);
         }
         return result;
     }
 
-    /*
-	 * Deserialize functions
-	 */
-    function getFieldNames(obj, options) {
-        var root = '',
-			fieldNames = {};
-
-        function recursion(root, obj) {
-            for (var name in obj) {
-                var item = obj[name];
-
-                if (isArray(item)) {
-                    //if array of objects
-                    if (isObject(item[0])) {
-                        for (var i = item.length; i--;) {
-                            recursion(root + name + '[' + i + '].', item[i]);
-                        }
-                    } else {
-                        //If the user forgets to type "[]" on multiselects
-                        fieldNames[root + name] = item;
-                        fieldNames[root + name + '[]'] = item;
-                    }
-                } else if (isObject(item)) {
-                    recursion(root + name + options.delimiter, item);
-                } else if (obj[name] !== null) {
-                    fieldNames[root + name] = item;
-                }
-            }
-        }
-        recursion(root, obj);
-        return fieldNames;
-    }
-
-    function setValueToInput(input, value) {
-        var nodeName = input.nodeName.toLowerCase();
-
-        switch (nodeName) {
-            case 'input':
-            case 'textarea':
-                var type = input.type.toLowerCase();
-                switch (type) {
-                    case 'radio':
-                        if (value === input.value) input.checked = true;
-                        break;
-                    case 'checkbox':
-                        if (isArray(value)) {
-                            input.checked = value.indexOf(input.value) !== -1;
-                        } else {
-                            input.checked = value === true || value === input.value;
-                        }
-                        break;
-                    case 'button':
-                    case 'reset':
-                    case 'submit':
-                    case 'image':
-                        return;
-                    default:
-                        input.value = value;
-                }
-                break;
-            case 'select':
-                if (input.multiple && isArray(value)) {
-                    for (var i = input.options.length; i--;) {
-                        input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
-                    }
-                } else {
-                    input.value = value;
-                }
-                break;
-            default:
-        }
-    }
-
-    /*
-	 * Serialize functions
-	 */
     function getEntryFromInput(input) {
         var entry = {
-                name: input.name,
-                value: null
-            },
+            name: input.name,
+            value: null
+        },
             nodeName = input.nodeName.toLowerCase();
 
         switch (nodeName) {
@@ -226,9 +133,104 @@
         }
     }
 
-    /*
-	 * Helper functions
-	 */
+    /* Deserialize */
+    function deserialize(formEl, data, nodeCallback, options) {
+        var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
+        if (!el) throw new Error("Parent element not found.");
+        var inputs = getFields(el),
+            opts = getOptions(options);
+        data = data || {};
+
+        var fieldNames = getFieldNames(data, opts);
+        for (var i = 0, l = inputs.length; i < l; i++) {
+            var input = inputs[i],
+                key = input.name || opts.useIdOnEmptyName && input.id,
+				value = fieldNames[key];
+
+            if (typeof value === "undefined" || value === null) {
+                input.value = "";
+                continue;
+            }
+
+            var mutated = nodeCallback && nodeCallback(input, value);
+            if (!mutated) {
+                setValueToInput(input, value);
+            }
+        }
+    }
+
+    function getFieldNames(obj, options) {
+        var root = '',
+			fieldNames = {};
+
+        function recursion(root, obj) {
+            for (var name in obj) {
+                var item = obj[name];
+
+                if (isArray(item)) {
+                    //if array of objects
+                    if (isObject(item[0])) {
+                        for (var i = item.length; i--;) {
+                            recursion(root + name + '[' + i + '].', item[i]);
+                        }
+                    } else {
+                        //If the user forgets to type "[]" on multiselects
+                        fieldNames[root + name] = item;
+                        fieldNames[root + name + '[]'] = item;
+                    }
+                } else if (isObject(item)) {
+                    recursion(root + name + options.delimiter, item);
+                } else if (obj[name] !== null) {
+                    fieldNames[root + name] = item;
+                }
+            }
+        }
+        recursion(root, obj);
+        return fieldNames;
+    }
+
+    function setValueToInput(input, value) {
+        var nodeName = input.nodeName.toLowerCase();
+
+        switch (nodeName) {
+            case 'input':
+            case 'textarea':
+                var type = input.type.toLowerCase();
+                switch (type) {
+                    case 'radio':
+                        if (value === input.value) input.checked = true;
+                        break;
+                    case 'checkbox':
+                        if (isArray(value)) {
+                            input.checked = value.indexOf(input.value) !== -1;
+                        } else {
+                            input.checked = value === true || value === input.value;
+                        }
+                        break;
+                    case 'button':
+                    case 'reset':
+                    case 'submit':
+                    case 'image':
+                        return;
+                    default:
+                        input.value = value;
+                }
+                break;
+            case 'select':
+                if (input.multiple && isArray(value)) {
+                    for (var i = input.options.length; i--;) {
+                        input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
+                    }
+                } else {
+                    input.value = value;
+                }
+                break;
+            default:
+        }
+    }
+
+
+    /* Helper functions */
     function isObject(obj) {
         return Object.prototype.toString.call(obj) === "[object Object]";
     }
@@ -236,33 +238,32 @@
         return n - parseFloat(n) + 1 >= 0;
     }
     function isArray(arr) {
-        return !!arr.shift;
+        return !!(arr && arr.shift);
     }
 
-    /*
-	 * Main functions
-	 */
     function getFields(parent) {
         return parent.querySelectorAll('input,select,textarea');
     }
 
     function getOptions(options) {
-        var opts = getDefaultOptions();
-        if (options) for (var o in options) opts[o] = options[o];
+        if (!isObject(options))
+            return _defaults;
+        var o, opts = {};
+        for (o in _defaults)
+            opts[o] = _defaults[o];
+        for (o in options)
+            opts[o] = options[o];
         return opts;
     }
 
-    function getDefaultOptions() {
-        return {
-            delimiter: '.',
-            skipDisabled: true,
-            skipFalsy: false, //TODO: skip the falsy values (0, false, null, undefined, '')
-            useIdOnEmptyName: false
-        };
+    function setDefaults(defaults) {
+        _defaults = getOptions(defaults);
     }
-
+    
+    /* Exposed functions */
     return {
         serialize: serialize,
-        deserialize: deserialize
+        deserialize: deserialize,
+        setDefaults: setDefaults
     };
 }));
