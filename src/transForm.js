@@ -13,17 +13,16 @@
 
     /* Serialize */
     function serialize(formEl, nodeCallback, options) {
-        var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
-        if (!el) throw new Error("Parent element not found.");
-        var result = {},
-			inputs = getFields(el),
-            opts = getOptions(options);
+        var el = makeElement(formEl),        
+            result = {},
+            opts = getOptions(options),
+			inputs = getFields(el, opts.skipDisabled);
 
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i],
                 key = input.name || opts.useIdOnEmptyName && input.id;
 
-            if (!key || (opts.skipDisabled && input.disabled))
+            if (!key)
                 continue;
 
             var entry = null;
@@ -39,40 +38,29 @@
     }
 
     function getEntryFromInput(input) {
-        var entry = {
-            name: input.name,
-            value: null
-        },
-            nodeName = input.nodeName.toLowerCase();
+        var nodeType = input.type && input.type.toLowerCase(),
+            entry = {
+                name: input.name,
+                value: null
+            };
 
-        switch (nodeName) {
-            case 'input':
-            case 'textarea':
-                var type = input.type.toLowerCase();
-                switch (type) {
-                    case 'radio':
-                        if (input.checked) {
-                            entry.value = input.value === 'on' ? true : input.value;
-                        }
-                        break;
-                    case 'checkbox':
-                        entry.value = input.checked ? (input.value === 'on' ? true : input.value) : false;
-                        break;
-                    default:
-                        entry.value = input.value;
+        switch (nodeType) {   
+            case 'radio':
+                if (input.checked) {
+                    entry.value = input.value === 'on' ? true : input.value;
                 }
                 break;
-            case 'select':
-                if (input.multiple) {
-                    entry.value = [];
-                    for (var i = 0, l = input.options.length; i < l; i++) {
-                        if (input.options[i].selected) entry.value.push(input.options[i].value);
-                    }
-                } else {
-                    entry.value = input.value;
+            case 'checkbox':
+                entry.value = input.checked ? (input.value === 'on' ? true : input.value) : false;
+                break;
+            case 'select-multiple':
+                entry.value = [];
+                for (var i = 0, l = input.options.length; i < l; i++) {
+                    if (input.options[i].selected) entry.value.push(input.options[i].value);
                 }
                 break;
             default:
+                entry.value = input.value;
         }
         return entry;
     }
@@ -135,11 +123,20 @@
 
     /* Deserialize */
     function deserialize(formEl, data, nodeCallback, options) {
-        var el = typeof formEl === 'string' ? document.querySelector(formEl) : formEl;
-        if (!el) throw new Error("Parent element not found.");
-        var inputs = getFields(el),
-            opts = getOptions(options);
-        data = data || {};
+        var el = makeElement(formEl),
+            opts = getOptions(options),
+            inputs = getFields(el, opts.skipDisabled);
+
+        if (!isObject(data)) {
+            if (!isString(data))
+                return;
+            try {
+                //Try to parse the passed data as JSON
+                data = JSON.parse(data);
+            } catch (e){
+                throw new Error("Passed string is not a JSON string.");
+            }
+        }
 
         var fieldNames = getFieldNames(data, opts);
         for (var i = 0, l = inputs.length; i < l; i++) {
@@ -190,46 +187,56 @@
     }
 
     function setValueToInput(input, value) {
-        var nodeName = input.nodeName.toLowerCase();
+        var nodeType = input.type && input.type.toLowerCase();
 
-        switch (nodeName) {
-            case 'input':
-            case 'textarea':
-                var type = input.type.toLowerCase();
-                switch (type) {
-                    case 'radio':
-                        if (value === input.value) input.checked = true;
-                        break;
-                    case 'checkbox':
-                        if (isArray(value)) {
-                            input.checked = value.indexOf(input.value) !== -1;
-                        } else {
-                            input.checked = value === true || value === input.value;
-                        }
-                        break;
-                    case 'button':
-                    case 'reset':
-                    case 'submit':
-                    case 'image':
-                        return;
-                    default:
-                        input.value = value;
+        switch (nodeType) {
+            case 'radio':
+                if (value === input.value) input.checked = true;
+                break;
+            case 'checkbox':
+                if (isArray(value)) {
+                    input.checked = value.indexOf(input.value) !== -1;
+                } else {
+                    input.checked = value === true || value === input.value;
                 }
                 break;
-            case 'select':
-                if (input.multiple && isArray(value)) {
+            case 'select-multiple':
+                if (isArray(value)) {
                     for (var i = input.options.length; i--;) {
                         input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
                     }
-                } else {
-                    input.value = value;
                 }
                 break;
             default:
+                input.value = value;
         }
     }
 
+    /* Clear */
+    function clear(formEl, options) {
+        var el = makeElement(formEl),
+            opts = getOptions(options),
+            inputs = getFields(el, opts.skipDisabled);
 
+        for (var i = 0, l = inputs.length; i < l; i++) {
+            var input = inputs[i],
+                nodeType = input.type && input.type.toLowerCase();
+
+            switch (nodeType) {
+                case 'radio':
+                case 'checkbox':
+                    if (input.checked) input.checked = false;
+                    break;
+                case 'select-one':
+                case 'select-multiple':
+                    input.selectedIndex = -1;
+                    break;
+                default:
+                    input.value = '';
+            }
+        }
+    }
+        
     /* Helper functions */
     function isObject(obj) {
         return Object.prototype.toString.call(obj) === "[object Object]";
@@ -240,9 +247,23 @@
     function isArray(arr) {
         return !!(arr && arr.shift);
     }
+    function isString(s) {
+        return typeof s === 'string' || s instanceof String;
+    }
 
-    function getFields(parent) {
-        return parent.querySelectorAll('input,select,textarea');
+    function makeElement(el){
+        el = isString(el)
+            ? document.querySelector(el) || document.getElementById(el)
+            : el;
+         if (!el) throw new Error("Element not found.");
+         return el;
+    }
+
+    function getFields(parent, skipDisabled) {
+        var fieldQuery = skipDisabled
+            ? 'input:not([disabled]),select:not([disabled]),textarea:not([disabled])'
+            : 'input,select,textarea';
+        return parent.querySelectorAll(fieldQuery);
     }
 
     function getOptions(options) {
@@ -264,6 +285,7 @@
     return {
         serialize: serialize,
         deserialize: deserialize,
+        clear: clear,
         setDefaults: setDefaults
     };
 }));

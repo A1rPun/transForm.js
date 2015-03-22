@@ -28,6 +28,18 @@ Deserializes a JavaScript object to a HTML form
 
 	transForm.deserialize('#myForm', { myInputName: 'myValue' });
 
+##`transForm.clear()`
+Clears a form so that every input has no value.
+
+###Params
+
+- formElement - Can be an HTMLElement or querySelector string
+- options - An object containing clear options
+
+###Example
+
+	transForm.clear('#myForm');
+
 ##`transForm.setDefaults()`
 Overrides the default options in the `transForm` instance.
 
