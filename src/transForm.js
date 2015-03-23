@@ -13,7 +13,7 @@
 
     /* Serialize */
     function serialize(formEl, nodeCallback, options) {
-        var el = makeElement(formEl),        
+        var el = makeElement(formEl),
             result = {},
             opts = getOptions(options),
 			inputs = getFields(el, opts.skipDisabled);
@@ -44,7 +44,7 @@
                 value: null
             };
 
-        switch (nodeType) {   
+        switch (nodeType) {
             case 'radio':
                 if (input.checked) {
                     entry.value = input.value === 'on' ? true : input.value;
@@ -133,7 +133,7 @@
             try {
                 //Try to parse the passed data as JSON
                 data = JSON.parse(data);
-            } catch (e){
+            } catch (e) {
                 throw new Error("Passed string is not a JSON string.");
             }
         }
@@ -145,7 +145,7 @@
 				value = fieldNames[key];
 
             if (typeof value === "undefined" || value === null) {
-                input.value = "";
+                clearInput(input);
                 continue;
             }
 
@@ -219,24 +219,27 @@
             inputs = getFields(el, opts.skipDisabled);
 
         for (var i = 0, l = inputs.length; i < l; i++) {
-            var input = inputs[i],
-                nodeType = input.type && input.type.toLowerCase();
-
-            switch (nodeType) {
-                case 'radio':
-                case 'checkbox':
-                    if (input.checked) input.checked = false;
-                    break;
-                case 'select-one':
-                case 'select-multiple':
-                    input.selectedIndex = -1;
-                    break;
-                default:
-                    input.value = '';
-            }
+            clearInput(inputs[i]);
         }
     }
-        
+
+    function clearInput(input) {
+        var nodeType = input.type && input.type.toLowerCase();
+
+        switch (nodeType) {
+            case 'radio':
+            case 'checkbox':
+                if (input.checked) input.checked = false;
+                break;
+            case 'select-one':
+            case 'select-multiple':
+                input.selectedIndex = -1;
+                break;
+            default:
+                input.value = '';
+        }
+    }
+
     /* Helper functions */
     function isObject(obj) {
         return Object.prototype.toString.call(obj) === "[object Object]";
@@ -251,12 +254,12 @@
         return typeof s === 'string' || s instanceof String;
     }
 
-    function makeElement(el){
+    function makeElement(el) {
         el = isString(el)
             ? document.querySelector(el) || document.getElementById(el)
             : el;
-         if (!el) throw new Error("Element not found.");
-         return el;
+        if (!el) throw new Error("Element not found.");
+        return el;
     }
 
     function getFields(parent, skipDisabled) {
@@ -280,7 +283,7 @@
     function setDefaults(defaults) {
         _defaults = getOptions(defaults);
     }
-    
+
     /* Exposed functions */
     return {
         serialize: serialize,
