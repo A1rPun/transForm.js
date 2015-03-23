@@ -236,13 +236,13 @@
         return typeof s === 'string' || s instanceof String;
     }
 
-    //Triggerevent https://gist.github.com/dciccale/6226151
     function triggerEvent(el, type) {
         var e;
         if (document.createEvent) {
-            e = new Event(type);
+            e = document.createEvent('HTMLEvents');
+            e.initEvent(type, true, true);
             el.dispatchEvent(e);
-        } else {
+        } else { //old IE
             e = document.createEventObject();
             el.fireEvent('on' + type, e);
         }
