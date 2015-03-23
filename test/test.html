@@ -23,25 +23,30 @@
             display: table;
         }
 
+        .blockrow {
+            display: table-row;
+        }
+
         .block {
             display: table-cell;
             vertical-align: top;
-            width: 48%;
+            width: 50%;
+            max-width: 400px;
             padding: 8px;
             background: #222;
         }
-        
-        .block input:not([type="radio"]):not([type="checkbox"]),
-        .block textarea,
-        .block select{
-            width: 100%;
-            margin-bottom: 8px;
-        }
 
-        .block button {
-            width: 100%;
-            height: 30px;
-        }
+            .block input:not([type="radio"]):not([type="checkbox"]),
+            .block textarea,
+            .block select {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .block button {
+                width: 100%;
+                height: 30px;
+            }
 
         #output {
             height: 430px;
@@ -52,105 +57,126 @@
     <div class="center">
         <h1>transForm.js</h1>
         <div class="blockwrap">
-            <div class="block">
-                <div id="myForm">
-                    <label>Input</label><br />
-                    <input name="input" value="input" /><br />
-                    <label>Checkboxes</label><br />
-                    <input name="test.checkno" type="checkbox" />
-                    <input name="test.checkdefault" type="checkbox" checked />
-                    <input name="test.checkwithvalue" type="checkbox" value="myValue" checked/><br/>
-                    <label>Checkbox array</label><br />
-                    <input name="test.checkarray[]" type="checkbox" value="1" checked/>
-                    <input name="test.checkarray[]" type="checkbox" value="2" checked />
-                    <input name="test.checkarray[]" type="checkbox" value="3" /><br />
-                    <label>Radiobuttons</label><br />
-                    <input name="test.radio" type="radio" value="option1" checked />
-                    <input name="test.radio" type="radio" value="option2" />
-                    <input name="test.radio" type="radio" value="option3" /><br />
-                    <label>Textarea</label><br />
-                    <textarea name="test.textarea">default text</textarea><br />
-                    <label>Select</label><br />
-                    <select name="test.select">
-                        <option val="0">0</option>
-                        <option val="1" selected>1</option>
-                        <option val="2">2</option>
-                    </select><br />
-                    <label>Multiselect</label><br />
-                    <select name="test.multiselect" multiple>
-                        <option val="0">0</option>
-                        <option val="1" selected>1</option>
-                        <option val="2">2</option>
-                        <option val="3" selected>3</option>
-                        <option val="4">4</option>
-                    </select><br />
-                    <label>Input custom logic</label><br />
-                    <input name="custom0" data-custom="foo" /><br />
-                    <input name="custom1" data-custom="bar" /><br />
-                    <button id="serialize">Serialize</button>
+            <div class="blockrow" id="options">
+                <div class="block">
+                    <label>Options</label><br/>
+                    <input id="skipDisabled" type="checkbox" checked/><label for="skipDisabled">skipDisabled</label><br/>
+                    <input id="skipFalsy" type="checkbox"/><label for="skipFalsy">skipFalsy</label><br/>
+                    <input id="useIdOnEmptyName" type="checkbox"/><label for="useIdOnEmptyName">useIdOnEmptyName</label>
+                </div>
+                <div class="block">
+                    <label>delimiter</label><input name="delimiter" type="text" value="."/>
+                    <input id="triggerChange" type="checkbox"/><label for="triggerChange">triggerChange</label>
                 </div>
             </div>
-            <div class="block">
-                <textarea id="output"></textarea>
-                <button id="deserialize">Deserialize</button>
+            All inputs have a change listener which makes the field green (not for checkboxes & radio's)
+            <div class="blockrow">
+                <div class="block">
+                    <div id="myForm">
+                        <label>Input</label><br />
+                        <input name="input" value="JavaScript" /><br />
+                        <label>Disabled input</label><br />
+                        <input name="disabledinput" disabled="disabled" value="Computed field" /><br />
+                        <label>Input without name with id</label><br />
+                        <input id="inputwithId" value="got an idea?" /><br />
+                        <label>Input without name without id</label><br />
+                        <input value="Identify me" /><br />
+                        <label>Checkboxes</label><br />
+                        <input name="test.checkno" type="checkbox" />
+                        <input name="test.checkdefault" type="checkbox" checked />
+                        <input name="test.checkwithvalue" type="checkbox" value="myValue" checked /><br />
+                        <label>Checkbox array</label><br />
+                        <input name="test.checkarray[]" type="checkbox" value="checkbox1" checked />
+                        <input name="test.checkarray[]" type="checkbox" value="checkbox2" checked />
+                        <input name="test.checkarray[]" type="checkbox" value="checkbox3" /><br />
+                        <label>Radiobuttons</label><br />
+                        <input name="test.radio" type="radio" value="option1" checked />
+                        <input name="test.radio" type="radio" value="option2" />
+                        <input name="test.radio" type="radio" value="option3" /><br />
+                        <label>Textarea</label><br />
+                        <textarea name="test.textarea">default text</textarea><br />
+                        <label>Select</label><br />
+                        <select name="test.select">
+                            <option value="javascript">JavaScript</option>
+                            <option value="html" selected>HTML</option>
+                            <option value="css">CSS</option>
+                        </select><br />
+                        <label>Multiselect</label><br />
+                        <select name="test.multiselect" multiple>
+                            <option value="javascript">JavaScript</option>
+                            <option value="html" selected>HTML</option>
+                            <option value="css" selected>CSS</option>
+                            <option value="regex">RegEx</option>
+                        </select><br />
+                        <label>Input custom logic</label><br />
+                        <input name="custom0" data-custom="foo" value="foo" /><br />
+                        <input name="custom1" data-custom="bar" value="bar" /><br />
+                        <button id="serialize">Serialize</button><br />
+                        <button id="clear">Clear</button>
+                    </div>
+                </div>
+                <div class="block">
+                    <textarea id="output"></textarea>
+                    <button id="deserialize">Deserialize</button>
+                </div>
             </div>
         </div>
     </div>
-<script src="../src/transForm.js"></script>
-<script>
-    (function() {
-        var out = document.getElementById('output'),
-            btnSerialize = document.getElementById('serialize'),
-            btnDeserialize = document.getElementById('deserialize');
-        btnSerialize.addEventListener('click', serialize);
-        btnDeserialize.addEventListener('click', deserialize);
+    <script src="../src/transForm.js"></script>
+    <script>
+        (function () {
+            var out = document.getElementById('output'),
+                btnSerialize = document.getElementById('serialize'),
+                btnDeserialize = document.getElementById('deserialize'),
+                btnClear = document.getElementById('clear');
+            btnSerialize.addEventListener('click', serialize);
+            btnDeserialize.addEventListener('click', deserialize);
+            btnClear.addEventListener('click', clear);
 
-        function deserialize(e) {
-            var myObject;
-            if (e) {
-                myObject = JSON.parse(out.value);
-            } else {
-                myObject = {
-                    input: 'javascript',
-                    test: {
-                        checkno: true,
-                        checkdefault: false,
-                        checkwithvalue: false,
-                        checkarray: ['2', '3'],
-                        radio: 'option2',
-                        textarea: 'random',
-                        select: 2,
-                        multiselect: ['2', '3']
-                    },
-                    custom0: 'foo',
-                    custom1: 'bar'
-                };
+            var frm = document.querySelector('#myForm'),
+                allInputs = frm.querySelectorAll('input,textarea,select');
+            for (var i = allInputs.length; i--;)
+                allInputs[i].addEventListener('change', function () {
+                    var me = this;
+                    me.style.backgroundColor = '#BADA55';
+                    setTimeout(function () {
+                        me.style.backgroundColor = '';
+                    }, 1000);
+                });
+
+            function getOptions() {
+                return transForm.serialize('#options', { useIdOnEmptyName: true });
             }
 
-            transForm.deserialize('#myForm', myObject, function(node, value) {
-                var cust = node.getAttribute('data-custom');
-                if (cust) {
-                    node.value = value;
-                    node.style.backgroundColor = '#BADA55';
-                    return true;
-                }
-            });
-        }
+            function deserialize() {
+                var myObject = JSON.parse(out.value);
 
-        function serialize() {
-            var obj = transForm.serialize('#myForm', function(node) {
-                var cust = node.getAttribute('data-custom');
-                if (cust) {
-                    return { name: node.name, value: cust }
-                }
-            });
+                transForm.deserialize('#myForm', myObject, getOptions(), function (node, value) {
+                    var cust = node.getAttribute('data-custom');
+                    if (cust) {
+                        node.value = value + value + value;
+                        return true;
+                    }
+                });
+            }
 
-            out.value = JSON.stringify(obj, null, 4);
-        }
+            function serialize() {
+                var obj = transForm.serialize('#myForm', getOptions(), function (node) {
+                    var cust = node.getAttribute('data-custom');
+                    if (cust) {
+                        return { name: node.name, value: cust }
+                    }
+                });
 
-        deserialize();
-        serialize();
-    }());
-</script>
+                out.value = JSON.stringify(obj, null, 4);
+            }
+
+            function clear() {
+                transForm.clear('#myForm', getOptions());
+            }
+
+            serialize();
+        }());
+    </script>
 </body>
 </html>

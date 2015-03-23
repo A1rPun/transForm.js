@@ -7,8 +7,8 @@ Serializes the HTML form to a JavaScript object
 ###Params
 
 - formElement - Can be an HTMLElement or querySelector string
-- nodeCallback - Function that will be executed for every input (param: input)
 - options - An object containing serialize options
+- nodeCallback - Function that will be executed for every input (param: input)
 
 ###Example
 
@@ -21,8 +21,8 @@ Deserializes a JavaScript object to a HTML form
 
 - formElement - Can be an HTMLElement or querySelector string
 - data - The data that needs to be deserialized
-- nodeCallback - Function that will be executed for every input (params: input, value)
 - options - An object containing deserialize options
+- nodeCallback - Function that will be executed for every input (params: input, value)
 
 ###Example
 
@@ -52,19 +52,16 @@ Overrides the default options in the `transForm` instance.
 	//These are the current defaults
 	transForm.setDefaults({
 		delimiter: '.', //The delimiter seperates the object keys (serialize, deserialize)
-		skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize)
+		skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear)
 		skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
 		useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
-		triggerChange: false//TODO: implement fireevent (deserialize)
+        triggerChange: false //Fires the change listener for every field when deserializing (even if the value is not changed)
 	});
 
 #TODO's
 
-- better playground/examples :)
-- performance test
-- unittest
-- trigger change event after setting its value (option)
-- own indexOf function that matches == and not === (for values)
+- Unit test
+- Performance test
 - jQuery/Zepto plugin
 
 #Browser support
