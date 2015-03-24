@@ -2,10 +2,12 @@
 	var out = document.getElementById('output'),
 		btnSerialize = document.getElementById('serialize'),
 		btnDeserialize = document.getElementById('deserialize'),
-		btnClear = document.getElementById('clear');
+		btnClear = document.getElementById('clear'),
+		btnSubmit = document.getElementById('submit');
 	btnSerialize.addEventListener('click', serialize);
 	btnDeserialize.addEventListener('click', deserialize);
 	btnClear.addEventListener('click', clear);
+	btnSubmit.addEventListener('click', submit);
 
 	var frm = document.querySelector('#myForm'),
 		allInputs = frm.querySelectorAll('input,textarea,select');
@@ -47,6 +49,10 @@
 
 	function clear() {
 		transForm.clear('#myForm', getOptions());
+	}
+
+	function submit() {
+	    transForm.submit('#myForm', true);
 	}
 
 	serialize();

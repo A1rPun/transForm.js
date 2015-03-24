@@ -1,7 +1,11 @@
-(function (name, definition) {
+﻿(function (name, definition) {
     if (typeof module != 'undefined') module.exports = definition();
     else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
-    else this[name] = definition();
+    else {
+        var noConflict = this[name];
+        this[name] = definition();
+        if (noConflict) this[name].noConflict = noConflict;
+    }
 }('transForm', function () {
     var _defaults = {
         delimiter: '.',
@@ -16,11 +20,14 @@
         var el = makeElement(formEl),
             result = {},
             opts = getOptions(options),
-			inputs = getFields(el, opts.skipDisabled);
+			inputs = getFields(el, opts.skipDisabled),
+            skipFalsy = opts.skipFalsy,
+			delimiter = opts.delimiter,
+            useIdOnEmptyName = opts.useIdOnEmptyName;
 
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i],
-                key = input.name || opts.useIdOnEmptyName && input.id;
+                key = input.name || useIdOnEmptyName && input.id;
 
             if (!key) continue;
 
@@ -28,10 +35,10 @@
             if (nodeCallback) entry = nodeCallback(input);
             if (!entry) entry = getEntryFromInput(input, key);
 
-            if ((opts.skipFalsy && !entry.value || isArray(entry.value) && !entry.value.length)
-                || typeof entry.value === "undefined" || entry.value === null)
+            if ((skipFalsy && !entry.value || isArray(entry.value) && !entry.value.length)
+                || typeof entry.value === 'undefined' || entry.value === null)
                 continue;
-            saveEntryToResult(result, entry, input, opts);
+            saveEntryToResult(result, entry, input, delimiter);
         }
         return result;
     }
@@ -58,11 +65,11 @@
         return entry;
     }
 
-    function saveEntryToResult(result, entry, input, options) {
+    function saveEntryToResult(result, entry, input, delimiter) {
         var name = entry.name,
 			arrayPart = /\[\]$/,
 			arrayPartIndex = /\[\d*\]/,
-			parts = name.split(options.delimiter),
+			parts = name.split(delimiter),
 			parent = result;
         //not not accept falsy values in array collections
         if (arrayPart.test(name) && !entry.value) return;
@@ -89,18 +96,18 @@
                         parent[part].push(entry.value);
                 } else {
                     if (isNumber(index)) {
-                        if (typeof parent[part][index] === "undefined") {
+                        if (typeof parent[part][index] === 'undefined') {
                             parent[part][index] = {};
                         }
                         parent = parent[part][index];
                     } else
-                        throw new Error("Index not set for " + name);
+                        error('Index not set for > ' + name);
                 }
             } else {//normal
                 if (last)
                     parent[part] = entry.value;
                 else {
-                    if (typeof parent[part] === "undefined") {
+                    if (typeof parent[part] === 'undefined') {
                         parent[part] = {};
                     }
                     parent = parent[part];
@@ -121,7 +128,7 @@
             try {//Try to parse the passed data as JSON
                 data = JSON.parse(data);
             } catch (e) {
-                throw new Error("Passed string is not a JSON string.");
+                error('Passed string is not a JSON string > ' + data);
             }
         }
         var fieldNames = getFieldNames(data, opts);
@@ -130,7 +137,7 @@
                 key = input.name || opts.useIdOnEmptyName && input.id,
 				value = fieldNames[key];
 
-            if (typeof value === "undefined" || value === null) {
+            if (typeof value === 'undefined' || value === null) {
                 clearInput(input, triggerChange);
                 continue;
             }
@@ -222,15 +229,42 @@
             triggerEvent(input, 'change');
     }
 
+    /* Submit */
+    function submit(formEl, HTML5Submit) {
+        var el = makeElement(formEl);
+
+        if (!HTML5Submit) {
+            if (isFunction(el.submit))
+                el.submit();
+            else
+                error('The element is not a form element > ' + formEl);
+            return;
+        }
+
+        var clean, btn = el.querySelector('[type="submit"]');
+        if (!btn) {
+            clean = true;
+            btn = document.createElement('button');
+            btn.type = 'submit';
+            btn.style.display = 'none';
+            el.appendChild(btn);
+        }
+        triggerEvent(btn, 'click');
+        if (clean) el.removeChild(btn);
+    }
+    
     /* Helper functions */
     function isObject(obj) {
-        return Object.prototype.toString.call(obj) === "[object Object]";
+        return Object.prototype.toString.call(obj) === '[object Object]';
     }
     function isNumber(n) {
         return n - parseFloat(n) + 1 >= 0;
     }
     function isArray(arr) {
-        return !!(arr && arr.shift);
+        return !!(arr && arr.shift);//If it shifts like an array, its a duck.
+    }
+    function isFunction(fn) {
+        return !!(fn && fn.call);//Ducktyping
     }
     function isString(s) {
         return typeof s === 'string' || s instanceof String;
@@ -249,9 +283,9 @@
     };
 
     function makeElement(el) {
-        el = isString(el) ? document.querySelector(el) || document.getElementById(el) : el;
-        if (!el) throw new Error("Element not found.");
-        return el;
+        var element = isString(el) ? document.querySelector(el) || document.getElementById(el) : el;
+        if (!element) error('Element not found with ' + el);
+        return element;
     }
 
     function getFields(parent, skipDisabled) {
@@ -273,11 +307,16 @@
         _defaults = getOptions(defaults);
     }
 
+    function error(e) {
+        throw new Error('transForm.js ♦ ' + e);
+    }
+
     /* Exposed functions */
     return {
         serialize: serialize,
         deserialize: deserialize,
         clear: clear,
+        submit: submit,
         setDefaults: setDefaults
     };
 }));

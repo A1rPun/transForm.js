@@ -1,7 +1,32 @@
 #transForm.js
-Javascript library for manipulating html forms
+Javascript library for manipulating html forms.
 
-##`transForm.serialize()`
+This project is inspired by [maxatwork/form2js](https://github.com/maxatwork/form2js).  
+`transForm.js` is even compatible with the object notation of form2js/js2form.
+
+##Installation
+
+(Optional) With Bower:
+
+    bower install --save trans-form
+
+Just add `transForm.js` to your HTML page like this
+
+	<script src="transForm.js"></script>
+    <!-- (Optional) Bower -->
+    <script src="bower_components/trans-form/src/transForm.js"></script>
+
+Then use the `transForm` namespace to use the awesome!
+
+##Functions
+
+- [`transForm.serialize()`](#serialize)
+- [`transForm.deserialize()`](#deserialize)
+- [`transForm.clear()`](#clear)
+- [`transForm.submit()`](#submit)
+- [`transForm.setDefaults()`](#setdefaults)
+
+##<a name="serialize"></a>`transForm.serialize()`
 Serializes the HTML form to a JavaScript object
 
 ###Params
@@ -14,7 +39,7 @@ Serializes the HTML form to a JavaScript object
 
 	var myFormObject = transForm.serialize('#myForm');
 
-##`transForm.deserialize()`
+##<a name="deserialize">`transForm.deserialize()`
 Deserializes a JavaScript object to a HTML form
 
 ###Params
@@ -28,7 +53,7 @@ Deserializes a JavaScript object to a HTML form
 
 	transForm.deserialize('#myForm', { myInputName: 'myValue' });
 
-##`transForm.clear()`
+##<a name="clear">`transForm.clear()`
 Clears a form so that every input has no value.
 
 ###Params
@@ -40,7 +65,20 @@ Clears a form so that every input has no value.
 
 	transForm.clear('#myForm');
 
-##`transForm.setDefaults()`
+##<a name="submit">`transForm.submit()`
+Submits a form which triggers the submit event of the form.
+If the HTML5 flag is true, It will validate the form the HTML5 way. Ex: with the `required` and `pattern` attributes.
+
+###Params
+
+- formElement - Can be an HTMLElement or querySelector string
+- HTML5Submit - HTML5 validation triggers only on submit button click, with this param you can submit a form without a button.
+
+###Example
+
+	transForm.submit('#myForm', true);
+
+##<a name="setdefaults">`transForm.setDefaults()`
 Overrides the default options in the `transForm` instance.
 
 ###Params
