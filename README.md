@@ -1,6 +1,73 @@
 #transForm.js
 Javascript library for manipulating html forms.
+It's goal is to easily transform html forms to structured javascript objects and vice versa.
 
+##Functions
+
+- [`transForm.serialize()`](#serialize)
+- [`transForm.deserialize()`](#deserialize)
+- [`transForm.clear()`](#clear)
+- [`transForm.submit()`](#submit)
+- [`transForm.setDefaults()`](#setdefaults)
+
+##Usage
+
+Basic example:
+
+	<form id="transform">
+		<input type="text" name="transform" value="transform">
+	</form>
+
+The parent element can be any element but `.submit()` will only work with `<form>` elements.
+
+	var obj = transForm.serialize('#transform');
+
+Variable `obj` holds this object:
+
+	{ transform: 'transform' }
+
+To deserialize this object into the form use the same structure
+
+	transForm.deserialize('#transform', obj);
+
+Using the "." delimiter one can specify an object inside the result object.
+Other structures:
+
+	<form id="transform">
+		<input type="checbox" name="checked" checked>
+		<input type="text" name="person.name" value="Gino Dino">
+		<input type="text" name="person[job]" value="Programmer">
+		<input type="text" name="person.hobbies[]" value="Programming">
+		<input type="text" name="person.hobbies[]" value="Gaming">
+		<input type="text" name="person.address[0].street" value="Inspirationstreet">
+		<input type="text" name="person.address[1].street" value="Objectionlane">
+		<input type="text" name="t.r.a.n.s.f.o.r.m" value="transform">
+	</form>
+
+Outputs:
+
+	{
+		checked: true,
+		person: {
+			name: 'Gino Dino',
+			job: 'Programmer',
+			hobbies: [
+				'Programming',
+				'Gaming'
+			],
+			address: [{
+				street: 'Inspirationstreet'
+			},{
+				street: 'Objectionlane'
+			}]
+		},
+		t:{r:{a:{n:{s:{f:{o:{r:{m:{}}}}}}}}}
+	}
+
+
+###An example with the object notation
+
+###History
 This project is inspired by [maxatwork/form2js](https://github.com/maxatwork/form2js).  
 `transForm.js` is even compatible with the object notation of form2js/js2form.
 
@@ -19,12 +86,6 @@ Just add `transForm.js` to your HTML page like this
 Then use the `transForm` namespace to use the awesome!
 
 ##Functions
-
-- [`transForm.serialize()`](#serialize)
-- [`transForm.deserialize()`](#deserialize)
-- [`transForm.clear()`](#clear)
-- [`transForm.submit()`](#submit)
-- [`transForm.setDefaults()`](#setdefaults)
 
 ##<a name="serialize"></a>`transForm.serialize()`
 Serializes the HTML form to a JavaScript object
@@ -72,7 +133,7 @@ If the HTML5 flag is true, It will validate the form the HTML5 way. Ex: with the
 ###Params
 
 - formElement - Can be an HTMLElement or querySelector string
-- HTML5Submit - HTML5 validation triggers only on submit button click, with this param you can submit a form without a button.
+- HTML5Submit - HTML5 validation triggers only on submit button click, with this param one can submit a form without a button.
 
 ###Example
 
