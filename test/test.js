@@ -55,6 +55,7 @@
 	function submit() {
 	    transForm.submit(myForm, true);
 	}
-
+	
 	serialize();
+	//out.value += '\n'+JSON.stringify(transForm.serialize('.testform'), null, 4);
 }());

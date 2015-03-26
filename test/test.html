@@ -73,8 +73,8 @@
             <div class="blockrow">
                 <div class="block">
                     <form id="myForm">
-                        <label>Input</label><br/>
-                        <input name="test.text.input" value="JavaScript"/><br/>
+                        <label>Input</label><br />
+                        <input name="test.text.input" value="JavaScript" /><br />
                         <label>Required Input</label><br />
                         <input name="test.text.required" value="" required="required" /><br />
                         <label>Disabled input</label><br />
@@ -125,6 +125,18 @@
                 </div>
             </div>
         </div>
+
+        <form class="testform">
+            <input type="hidden" name="q.u.s.t" value="test1">
+            <input type="hidden" name="[x][a][n][t]" value="test2" />
+            <input type="hidden" name="y[b][p].[f]" value="test3" />
+            <input type="hidden" name="z.l[a][r]" value="test4" />
+            <input type="hidden" name="d[w].[e].p" value="test5" />
+            <input type="hidden" name="a[0].r[r][0]" value="test6" />
+            <input type="hidden" name="o[0][r][0][e]" value="test7" />
+            <input type="hidden" name="[0][0]" value="test8" />
+        </form>
+
     </div>
     <script src="../src/transForm.js"></script>
     <script src="test.js"></script>

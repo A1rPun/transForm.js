@@ -65,101 +65,58 @@
         return entry;
     }
 
+    function parseString(str, delimiter) {
+        var result = [],
+            split = str.split(delimiter),
+            len = split.length;
+        for (var i = 0; i < len; i++) {
+            var s = split[i].split('['),
+                l = s.length;
+            for (var j = 0; j < l; j++) {
+                var key = s[j];
+                if (!key) {
+                    //if the first one is empty, continue
+                    if (j === 0) continue;
+                    //if the undefined key is not the last part of the string, throw error
+                    if (j !== l - 1)
+                        error('Undefined key is not the last part of the name > ' + str);
+                }
+                //strip "]" if its there
+                if (key && key[key.length - 1] === ']')
+                    key = key.slice(0, -1);
+                result.push(key);
+            }
+        }
+        return result;
+    }
+
     function saveEntryToResult(parent, entry, input, delimiter) {
-        var name = entry.name,
-			arrayPart = /\[\]$/,
-			arrayPartIndex = /\[\w*\]/,
-			parts = name.split(delimiter);
         //not not accept falsy values in array collections
-        if (arrayPart.test(name) && !entry.value) return;
-
+        if (/\[\]$/.test(entry.name) && !entry.value)
+            return;
+        var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
-            var part = parts[i],
-				dottedLast = i === l - 1;
-
-            //check if the part is in array notation
-            if (arrayPartIndex.test(part)) {
-                var split = part.split('['),
-                    part = split.shift();
-
-                //Fix this case: name="[begin]"
-                if (!part) {
-                    part = split.shift().slice(0, -1);
-
-                    if (!split.length) {
-
-                        if (dottedLast)
-                            parent[part] = entry.value;
-                        else {
-                            if (!isObject(parent[part]))
-                                parent[part] = {};
-
-                            parent = parent[part];
-                        }
-                        continue;
-                    }
-                }
-
-                for (var j = 0, m = split.length; j < m; j++) {
-                    var key = split[j].slice(0, -1),
-                        bracketLast = j === m - 1;
-
-                    if (!key) {
-
-                        if (!bracketLast || !dottedLast)
-                            error('Undefined key is not the last part of the name > ' + name);
-
-                        if (isArray(parent[part]))
-                            parent[part].push(entry.value);
-                        else
-                            parent[part] = [entry.value];
-
-                    } else if (isNumber(key)) {
-
-                        if (!isArray(parent[part]))
-                            parent[part] = [];
-
-                        if (bracketLast && dottedLast)
-                            parent[part][key] = entry.value;
-                        else {
-
-                            if (!isObject(parent[part][key]))
-                                parent[part][key] = {};
-
-                            if (bracketLast) {
-                                parent = parent[part][key];
-                            } else {
-                                parent = parent[part];
-                                part = key;
-                            }
-                        }
+            var part = parts[i];
+            //if last
+            if (i === l - 1) {
+                parent[part] = entry.value;
+            } else {
+                var index = parts[i + 1];
+                if (!index || isNumber(index)) {
+                    if (!isArray(parent[part]))
+                        parent[part] = [];
+                    //if second last
+                    if (i === l - 2) {
+                        parent[part].push(entry.value);
                     } else {
-
-                        if (!isObject(parent[part]))
-                            parent[part] = {};
-
-                        if (bracketLast) {
-                            if (dottedLast)
-                                parent[part][key] = entry.value;
-                            else {
-                                if (!isObject(parent[part][key]))
-                                    parent[part][key] = {};
-
-                                parent = parent[part][key];
-                            }
-                        } else {
-                            parent = parent[part]
-                            part = key;
-                        }
+                        if (!isObject(parent[part][index]))
+                            parent[part][index] = {};
+                        parent = parent[part][index];
                     }
-                }
-            } else {//normal
-                if (dottedLast)
-                    parent[part] = entry.value;
-                else {
+                    i++;
+                } else {
                     if (!isObject(parent[part]))
                         parent[part] = {};
-
                     parent = parent[part];
                 }
             }
@@ -185,7 +142,7 @@
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i],
                 key = input.name || opts.useIdOnEmptyName && input.id,
-				value = fieldNames[key];
+                value = fieldNames[key];
 
             if (typeof value === 'undefined' || value === null) {
                 clearInput(input, triggerChange);
@@ -198,7 +155,7 @@
 
     function getFieldNames(obj, options) {
         var root = '',
-			fieldNames = {};
+            fieldNames = {};
 
         function recursion(root, obj) {
             for (var name in obj) {
