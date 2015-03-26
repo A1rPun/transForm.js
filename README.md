@@ -34,11 +34,10 @@ Using the "." delimiter one can specify an object inside the result object.
 Other structures:
 
 	<form id="transform">
-		<input type="checbox" name="checked" checked>
 		<input type="text" name="person.name" value="Gino Dino">
 		<input type="text" name="person[job]" value="Programmer">
-		<input type="text" name="person.hobbies[]" value="Programming">
-		<input type="text" name="person.hobbies[]" value="Gaming">
+		<input type="checkbox" name="person.hobbies[]" value="Programming" checked>
+		<input type="checkbox" name="person.hobbies[]" value="Gaming">
 		<input type="text" name="person.address[0].street" value="Inspirationstreet">
 		<input type="text" name="person.address[1].street" value="Objectionlane">
 		<input type="text" name="t.r.a.n.s.f.o.r.m" value="transform">
@@ -47,13 +46,11 @@ Other structures:
 Outputs:
 
 	{
-		checked: true,
 		person: {
 			name: 'Gino Dino',
 			job: 'Programmer',
 			hobbies: [
-				'Programming',
-				'Gaming'
+				'Programming'
 			],
 			address: [{
 				street: 'Inspirationstreet'
@@ -63,9 +60,6 @@ Outputs:
 		},
 		t:{r:{a:{n:{s:{f:{o:{r:{m:{}}}}}}}}}
 	}
-
-
-###An example with the object notation
 
 ###History
 This project is inspired by [maxatwork/form2js](https://github.com/maxatwork/form2js).  

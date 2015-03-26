@@ -76,52 +76,80 @@
         for (var i = 0, l = parts.length; i < l; i++) {
             var part = parts[i],
 				dottedLast = i === l - 1;
-            
+
             //check if the part is in array notation
             if (arrayPartIndex.test(part)) {
                 var split = part.split('['),
                     part = split.shift();
-                
-                //test[ddd][fff][ggg]
-                //test.eee[dd][ff].test
-                //test[0].test[0][test]
+
+                //Fix this case: name="[begin]"
+                if (!part) {
+                    part = split.shift().slice(0, -1);
+
+                    if (!split.length) {
+
+                        if (dottedLast)
+                            parent[part] = entry.value;
+                        else {
+                            if (!isObject(parent[part]))
+                                parent[part] = {};
+
+                            parent = parent[part];
+                        }
+                        continue;
+                    }
+                }
 
                 for (var j = 0, m = split.length; j < m; j++) {
                     var key = split[j].slice(0, -1),
                         bracketLast = j === m - 1;
 
                     if (!key) {
+
                         if (!bracketLast || !dottedLast)
-                            error('Undefined key is not the last part of the name > ' + name);                        
-                        
+                            error('Undefined key is not the last part of the name > ' + name);
+
                         if (isArray(parent[part]))
-                            parent[part].push(entry.value);                            
+                            parent[part].push(entry.value);
                         else
                             parent[part] = [entry.value];
-                        
+
                     } else if (isNumber(key)) {
-                        //if parent is not an array, make one
+
                         if (!isArray(parent[part]))
                             parent[part] = [];
-                        //which action depending on last
+
                         if (bracketLast && dottedLast)
                             parent[part][key] = entry.value;
                         else {
-                            if (!isObject(parent[part][key])) {
+
+                            if (!isObject(parent[part][key]))
                                 parent[part][key] = {};
+
+                            if (bracketLast) {
+                                parent = parent[part][key];
+                            } else {
+                                parent = parent[part];
+                                part = key;
                             }
-                            parent = parent[part][key];
                         }
                     } else {
-                        
-                        if (bracketLast && dottedLast) {
-                            parent[key] = entry.value;
-                        } else {
-                            if (!isObject(parent[part])) {
-                                parent[part] = {};
+
+                        if (!isObject(parent[part]))
+                            parent[part] = {};
+
+                        if (bracketLast) {
+                            if (dottedLast)
+                                parent[part][key] = entry.value;
+                            else {
+                                if (!isObject(parent[part][key]))
+                                    parent[part][key] = {};
+
+                                parent = parent[part][key];
                             }
-                            parent[part][key] = {};
-                            parent = parent[part][key];
+                        } else {
+                            parent = parent[part]
+                            part = key;
                         }
                     }
                 }
@@ -129,9 +157,9 @@
                 if (dottedLast)
                     parent[part] = entry.value;
                 else {
-                    if (!isObject(parent[part])) {
+                    if (!isObject(parent[part]))
                         parent[part] = {};
-                    }
+
                     parent = parent[part];
                 }
             }
