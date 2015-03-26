@@ -1,5 +1,6 @@
 (function () {
-	var out = document.getElementById('output'),
+    var out = document.getElementById('output'),
+        myForm = document.getElementById('myForm'),
 		btnSerialize = document.getElementById('serialize'),
 		btnDeserialize = document.getElementById('deserialize'),
 		btnClear = document.getElementById('clear'),
@@ -8,9 +9,9 @@
 	btnDeserialize.addEventListener('click', deserialize);
 	btnClear.addEventListener('click', clear);
 	btnSubmit.addEventListener('click', submit);
+	myForm.addEventListener('submit', function (e) { e.preventDefault() });
 
-	var frm = document.querySelector('#myForm'),
-		allInputs = frm.querySelectorAll('input,textarea,select');
+	var allInputs = myForm.querySelectorAll('input,textarea,select');
 	for (var i = allInputs.length; i--;)
 		allInputs[i].addEventListener('change', function () {
 			var me = this;
@@ -27,7 +28,7 @@
 	function deserialize() {
 		var myObject = JSON.parse(out.value);
 
-		transForm.deserialize('#myForm', myObject, getOptions(), function (node, value) {
+		transForm.deserialize(myForm, myObject, getOptions(), function (node, value) {
 			var cust = node.getAttribute('data-custom');
 			if (cust) {
 				node.value = value + value + value;
@@ -37,7 +38,7 @@
 	}
 
 	function serialize() {
-		var obj = transForm.serialize('#myForm', getOptions(), function (node) {
+		var obj = transForm.serialize(myForm, getOptions(), function (node) {
 			var cust = node.getAttribute('data-custom');
 			if (cust) {
 				return { name: node.name, value: cust }
@@ -48,11 +49,11 @@
 	}
 
 	function clear() {
-		transForm.clear('#myForm', getOptions());
+		transForm.clear(myForm, getOptions());
 	}
 
 	function submit() {
-	    transForm.submit('#myForm', true);
+	    transForm.submit(myForm, true);
 	}
 
 	serialize();
