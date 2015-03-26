@@ -65,49 +65,71 @@
         return entry;
     }
 
-    function saveEntryToResult(result, entry, input, delimiter) {
+    function saveEntryToResult(parent, entry, input, delimiter) {
         var name = entry.name,
 			arrayPart = /\[\]$/,
-			arrayPartIndex = /\[\d*\]/,
-			parts = name.split(delimiter),
-			parent = result;
+			arrayPartIndex = /\[\w*\]/,
+			parts = name.split(delimiter);
         //not not accept falsy values in array collections
         if (arrayPart.test(name) && !entry.value) return;
 
         for (var i = 0, l = parts.length; i < l; i++) {
             var part = parts[i],
-				last = i === l - 1;
+				dottedLast = i === l - 1;
+            
             //check if the part is in array notation
             if (arrayPartIndex.test(part)) {
                 var split = part.split('['),
-					index = split[1].slice(0, -1);
-                part = split[0];
-                //if parent is not an array, make one
-                if (!isArray(parent[part]))
-                    parent[part] = [];
-                //which action depending on last
-                if (last) {
-                    //multiple select exception
-                    if (input.multiple)
-                        parent[part] = entry.value;
-                    else if (isNumber(index))
-                        parent[part].splice(index, 0, entry.value);
-                    else
-                        parent[part].push(entry.value);
-                } else {
-                    if (isNumber(index)) {
-                        if (typeof parent[part][index] === 'undefined') {
-                            parent[part][index] = {};
+                    part = split.shift();
+                
+                //test[ddd][fff][ggg]
+                //test.eee[dd][ff].test
+                //test[0].test[0][test]
+
+                for (var j = 0, m = split.length; j < m; j++) {
+                    var key = split[j].slice(0, -1),
+                        bracketLast = j === m - 1;
+
+                    if (!key) {
+                        if (!bracketLast || !dottedLast)
+                            error('Undefined key is not the last part of the name > ' + name);                        
+                        
+                        if (isArray(parent[part]))
+                            parent[part].push(entry.value);                            
+                        else
+                            parent[part] = [entry.value];
+                        
+                    } else if (isNumber(key)) {
+                        //if parent is not an array, make one
+                        if (!isArray(parent[part]))
+                            parent[part] = [];
+                        //which action depending on last
+                        if (bracketLast && dottedLast)
+                            parent[part][key] = entry.value;
+                        else {
+                            if (!isObject(parent[part][key])) {
+                                parent[part][key] = {};
+                            }
+                            parent = parent[part][key];
                         }
-                        parent = parent[part][index];
-                    } else
-                        error('Index not set for > ' + name);
+                    } else {
+                        
+                        if (bracketLast && dottedLast) {
+                            parent[key] = entry.value;
+                        } else {
+                            if (!isObject(parent[part])) {
+                                parent[part] = {};
+                            }
+                            parent[part][key] = {};
+                            parent = parent[part][key];
+                        }
+                    }
                 }
             } else {//normal
-                if (last)
+                if (dottedLast)
                     parent[part] = entry.value;
                 else {
-                    if (typeof parent[part] === 'undefined') {
+                    if (!isObject(parent[part])) {
                         parent[part] = {};
                     }
                     parent = parent[part];
@@ -252,7 +274,7 @@
         triggerEvent(btn, 'click');
         if (clean) el.removeChild(btn);
     }
-    
+
     /* Helper functions */
     function isObject(obj) {
         return Object.prototype.toString.call(obj) === '[object Object]';

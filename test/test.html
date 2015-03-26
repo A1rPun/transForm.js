@@ -74,21 +74,24 @@
                 <div class="block">
                     <form id="myForm">
                         <label>Input</label><br />
-                        <input name="input" value="" required="required" /><br />
+                        <input name="t1[t2][t3][0][dayumn]" value="dayumn"/><br />
+                        <input name="t1[t2][t3][0][nasty]" value="nasty"/><br />
+                        <label>Required Input</label><br />
+                        <input name="test.text.required" value="" required="required" /><br />
                         <label>Disabled input</label><br />
-                        <input name="disabledinput" disabled="disabled" value="Computed field" /><br />
+                        <input name="test.text.disabledinput" disabled="disabled" value="Computed field" /><br />
                         <label>Input without name with id</label><br />
-                        <input id="inputwithId" value="got an idea?" /><br />
+                        <input id="test.text.inputwithId" value="got an idea?" /><br />
                         <label>Input without name without id</label><br />
                         <input value="Identify me" /><br />
                         <label>Checkboxes</label><br />
-                        <input name="test.checkno" type="checkbox" />
-                        <input name="test.checkdefault" type="checkbox" checked />
-                        <input name="test.checkwithvalue" type="checkbox" value="myValue" checked /><br />
+                        <input name="test.checbox.checkno" type="checkbox" />
+                        <input name="test.checbox.checkdefault" type="checkbox" checked />
+                        <input name="test.checbox.checkwithvalue" type="checkbox" value="myValue" checked /><br />
                         <label>Checkbox array</label><br />
-                        <input name="test.checkarray[]" type="checkbox" value="checkbox1" checked />
-                        <input name="test.checkarray[]" type="checkbox" value="checkbox2" checked />
-                        <input name="test.checkarray[]" type="checkbox" value="checkbox3" /><br />
+                        <input name="test.checbox.checkarray[]" type="checkbox" value="checkbox1" checked />
+                        <input name="test.checbox.checkarray[]" type="checkbox" value="checkbox2" checked />
+                        <input name="test.checbox.checkarray[]" type="checkbox" value="checkbox3" /><br />
                         <label>Radiobuttons</label><br />
                         <input name="test.radio" type="radio" value="option1" checked />
                         <input name="test.radio" type="radio" value="option2" />
@@ -96,13 +99,13 @@
                         <label>Textarea</label><br />
                         <textarea name="test.textarea">default text</textarea><br />
                         <label>Select</label><br />
-                        <select name="test.select">
+                        <select name="test.select.single">
                             <option value="javascript">JavaScript</option>
                             <option value="html" selected>HTML</option>
                             <option value="css">CSS</option>
                         </select><br />
                         <label>Multiselect</label><br />
-                        <select name="test.multiselect" multiple>
+                        <select name="test.select.multi" multiple>
                             <option value="javascript">JavaScript</option>
                             <option value="html" selected>HTML</option>
                             <option value="css" selected>CSS</option>
@@ -111,9 +114,10 @@
                         <label>Input custom logic</label><br />
                         <input name="custom0" data-custom="foo" value="foo" /><br />
                         <input name="custom1" data-custom="bar" value="bar" /><br />
-                        <button id="serialize">Serialize</button><br />
-                        <button id="clear">Clear</button><br />
-                        <button id="submit">Submit</button>
+                        <button type="button" id="serialize">Serialize</button><br />
+                        <button type="button" id="clear">Clear</button><br />
+                        <!-- Can also be type="submit" because the button is inside the form -->
+                        <button type="button" id="submit">Submit</button>
                     </form>
                 </div>
                 <div class="block">
