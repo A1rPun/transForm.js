@@ -199,6 +199,7 @@
                     for (var i = input.options.length; i--;)
                         input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
                 break;
+            case 'file': break;
             default:
                 input.value = value;
         }
@@ -225,10 +226,7 @@
             case 'checkbox':
                 if (input.checked) input.checked = false;
                 break;
-            case 'select-one':
-            case 'select-multiple':
-                input.selectedIndex = -1;
-                break;
+            case 'file': break;
             default:
                 input.value = '';
         }
