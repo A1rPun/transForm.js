@@ -10,6 +10,7 @@
     var _defaults = {
         delimiter: '.',
         skipDisabled: true,
+        skipReadOnly: false,
         skipFalsy: false,
         useIdOnEmptyName: false,
         triggerChange: false
@@ -20,7 +21,7 @@
         var el = makeElement(formEl),
             result = {},
             opts = getOptions(options),
-			inputs = getFields(el, opts.skipDisabled),
+			inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
             skipFalsy = opts.skipFalsy,
 			delimiter = opts.delimiter,
             useIdOnEmptyName = opts.useIdOnEmptyName;
@@ -128,7 +129,7 @@
         var el = makeElement(formEl),
             opts = getOptions(options),
             triggerChange = opts.triggerChange,
-            inputs = getFields(el, opts.skipDisabled);
+            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly);
 
         if (!isObject(data)) {
             if (!isString(data)) return;
@@ -138,11 +139,11 @@
                 error('Passed string is not a JSON string > ' + data);
             }
         }
-        var fieldNames = getFieldNames(data, opts);
+
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i],
                 key = input.name || opts.useIdOnEmptyName && input.id,
-                value = fieldNames[key];
+                value = getFieldValue(key, opts.delimiter, data);
 
             if (typeof value === 'undefined' || value === null) {
                 clearInput(input, triggerChange);
@@ -153,35 +154,37 @@
         }
     }
 
-    function getFieldNames(obj, options) {
-        var root = '',
-            fieldNames = {};
+    function getFieldValue(key, delimiter, ref) {
+        if (!key) return;
+        var parts = parseString(key, delimiter);
+        for (var i = 0, l = parts.length; i < l; i++) {
+            var part = ref[parts[i]];
 
-        function recursion(root, obj) {
-            for (var name in obj) {
-                var item = obj[name];
+            if (typeof part === 'undefined' || part === null)
+                return;
 
-                if (isArray(item)) {
-                    //if array of objects
-                    if (isObject(item[0])) {
-                        for (var i = item.length; i--;) {
-                            recursion(root + name + '[' + i + '].', item[i]);
-                        }
+            //if last
+            if (i === l - 1) {
+                return part;
+            } else {
+                var index = parts[i + 1];
+                if (index === '') {
+                    return part;
+                } else if (isNumber(index)) {
+                    //if second last
+                    if (i === l - 2) {
+                        return part[index];
                     } else {
-                        //If the user forgets to type "[]" on multiselects
-                        fieldNames[root + name] = item;
-                        fieldNames[root + name + '[]'] = item;
+                        ref = part[index];
                     }
-                } else if (isObject(item))
-                    recursion(root + name + options.delimiter, item);
-                else if (obj[name] !== null)
-                    fieldNames[root + name] = item;
+                    i++;
+                } else {
+                    ref = part;
+                }
             }
         }
-        recursion(root, obj);
-        return fieldNames;
     }
-
+    
     function setValueToInput(input, value, triggerChange) {
         var nodeType = input.type && input.type.toLowerCase();
 
@@ -212,7 +215,7 @@
         var el = makeElement(formEl),
             opts = getOptions(options),
             triggerChange = opts.triggerChange,
-            inputs = getFields(el, opts.skipDisabled);
+            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly);
 
         for (var i = 0, l = inputs.length; i < l; i++)
             clearInput(inputs[i], triggerChange);
@@ -269,7 +272,7 @@
         return !!(arr && arr.shift);//If it shifts like an array, its a duck.
     }
     function isFunction(fn) {
-        return !!(fn && fn.call);//Ducktyping
+        return typeof fn === 'function';
     }
     function isString(s) {
         return typeof s === 'string' || s instanceof String;
@@ -293,11 +296,15 @@
         return element;
     }
 
-    function getFields(parent, skipDisabled) {
-        var fieldQuery = skipDisabled
-            ? 'input:not([disabled]),select:not([disabled]),textarea:not([disabled])'
-            : 'input,select,textarea';
-        return parent.querySelectorAll(fieldQuery);
+    function getFields(parent, skipDisabled, skipReadOnly) {
+        var fields = ['input', 'select', 'textarea'];
+        for (var i = 0; i < fields.length; i++) {
+            var field = fields[i];
+            if (skipDisabled) field += ':not([disabled])';
+            if (skipReadOnly) field += ':not([readonly])';
+            fields[i] = field;
+        }
+        return parent.querySelectorAll(fields.join(','));
     }
 
     function getOptions(options) {
