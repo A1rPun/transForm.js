@@ -60,6 +60,14 @@
                 for (var i = 0, l = input.options.length; i < l; i++)
                     if (input.options[i].selected) entry.value.push(input.options[i].value);
                 break;
+            case 'file':
+                //Only interested in the filename (Chrome adds C:\fakepath\ for security anyway)
+                entry.value = input.value.split('\\').pop();
+                break;
+            case 'button':
+            case 'submit':
+            case 'reset':
+                break;
             default:
                 entry.value = input.value;
         }
@@ -202,7 +210,11 @@
                     for (var i = input.options.length; i--;)
                         input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
                 break;
-            case 'file': break;
+            case 'button':
+            case 'submit':
+            case 'reset':
+            case 'file':
+                break;
             default:
                 input.value = value;
         }
@@ -229,7 +241,11 @@
             case 'checkbox':
                 if (input.checked) input.checked = false;
                 break;
-            case 'file': break;
+            case 'button':
+            case 'submit':
+            case 'reset':
+            case 'file':
+                break;
             default:
                 input.value = '';
         }

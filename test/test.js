@@ -27,24 +27,11 @@
 
 	function deserialize() {
 		var myObject = JSON.parse(out.value);
-
-		transForm.deserialize(myForm, myObject, getOptions(), function (node, value) {
-			var cust = node.getAttribute('data-custom');
-			if (cust) {
-				node.value = value + value + value;
-				return true;
-			}
-		});
+		transForm.deserialize(myForm, myObject, getOptions());
 	}
 
 	function serialize() {
-		var obj = transForm.serialize(myForm, getOptions(), function (node) {
-			var cust = node.getAttribute('data-custom');
-			if (cust) {
-				return { name: node.name, value: cust }
-			}
-		});
-
+		var obj = transForm.serialize(myForm, getOptions());
 		out.value = JSON.stringify(obj, null, 4);
 	}
 
