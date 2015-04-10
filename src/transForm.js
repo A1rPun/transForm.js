@@ -318,6 +318,7 @@
             var field = fields[i];
             if (skipDisabled) field += ':not([disabled])';
             if (skipReadOnly) field += ':not([readonly])';
+            field += ':not([data-trans-form="ignore"])';
             fields[i] = field;
         }
         return parent.querySelectorAll(fields.join(','));
