@@ -198,7 +198,7 @@
 
         switch (nodeType) {
             case 'radio':
-                if (value === input.value) input.checked = true;
+                if ("" + value === input.value) input.checked = true;
                 break;
             case 'checkbox':
                 input.checked = isArray(value)
@@ -209,6 +209,8 @@
                 if (isArray(value))
                     for (var i = input.options.length; i--;)
                         input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
+				else
+					input.value = value;
                 break;
             case 'button':
             case 'submit':
