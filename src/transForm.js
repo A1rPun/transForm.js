@@ -166,6 +166,7 @@
         if (!key) return;
         var parts = parseString(key, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
+            if(!ref) return;
             var part = ref[parts[i]];
 
             if (typeof part === 'undefined' || part === null)

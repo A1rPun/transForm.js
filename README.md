@@ -12,17 +12,20 @@ It's goal is to easily transform html forms to structured javascript objects and
 
 ##Installation
 
-(Optional) With Bower:
-
-    bower install --save trans-form
-
 Just add `transForm.js` to your HTML page like this
 
 	<script src="transForm.js"></script>
-    <!-- (Optional) Bower -->
-    <script src="bower_components/trans-form/src/transForm.js"></script>
-
+    
 Then use the `transForm` namespace to use the awesome!
+
+
+### Install with bower
+
+    bower install --save trans-form
+    
+Add the source to the HTML:
+    
+    <script src="bower_components/trans-form/src/transForm.js"></script>
 
 ##Usage
 
@@ -79,7 +82,7 @@ To ignore an input, select or textarea you can add the ignore data attribute lik
 
     data-trans-form="ignore"
 
-###History
+##History
 This project is inspired by [maxatwork/form2js](https://github.com/maxatwork/form2js).  
 `transForm.js` is even compatible with the object notation of form2js/js2form.
 
