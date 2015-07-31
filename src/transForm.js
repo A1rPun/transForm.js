@@ -36,8 +36,8 @@
             if (nodeCallback) entry = nodeCallback(input);
             if (!entry) entry = getEntryFromInput(input, key);
 
-            if ((skipFalsy && !entry.value || isArray(entry.value) && !entry.value.length)
-                || typeof entry.value === 'undefined' || entry.value === null)
+            if (typeof entry.value === 'undefined' || entry.value === null
+                || (skipFalsy && (!entry.value || (isArray(entry.value) && !entry.value.length))))
                 continue;
             saveEntryToResult(result, entry, input, delimiter);
         }
