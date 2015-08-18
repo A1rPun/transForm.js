@@ -240,6 +240,9 @@
         var nodeType = input.type && input.type.toLowerCase();
 
         switch (nodeType) {
+            case 'select-one':
+                input.selectedIndex = 0;
+                break;
             case 'radio':
             case 'checkbox':
                 if (input.checked) input.checked = false;
