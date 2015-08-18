@@ -1,7 +1,7 @@
 {
   "name": "transForm.js",
   "description": "Javascript library for manipulating html forms",
-  "version": "1.5.2",
+  "version": "1.0.1",
   "main": "src/transForm.js",
   "license": "MIT",
   "keywords": ["form","serialize","deserialize","clear","submit"],
