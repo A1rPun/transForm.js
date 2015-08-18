@@ -1,4 +1,4 @@
-﻿(function (name, definition) {
+﻿(function(name, definition) {
     if (typeof module != 'undefined') module.exports = definition();
     else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
     else {
@@ -6,7 +6,7 @@
         this[name] = definition();
         if (noConflict) this[name].noConflict = noConflict;
     }
-}('transForm', function () {
+}('transForm', function() {
     var _defaults = {
         delimiter: '.',
         skipDisabled: true,
@@ -21,9 +21,9 @@
         var el = makeElement(formEl),
             result = {},
             opts = getOptions(options),
-			inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
+            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
             skipFalsy = opts.skipFalsy,
-			delimiter = opts.delimiter,
+            delimiter = opts.delimiter,
             useIdOnEmptyName = opts.useIdOnEmptyName;
 
         for (var i = 0, l = inputs.length; i < l; i++) {
@@ -50,7 +50,8 @@
 
         switch (nodeType) {
             case 'radio':
-                if (input.checked) entry.value = input.value === 'on' ? true : input.value;
+                if (input.checked)
+                    entry.value = input.value === 'on' ? true : input.value;
                 break;
             case 'checkbox':
                 entry.value = input.checked ? (input.value === 'on' ? true : input.value) : false;
@@ -141,7 +142,7 @@
 
         if (!isObject(data)) {
             if (!isString(data)) return;
-            try {//Try to parse the passed data as JSON
+            try { //Try to parse the passed data as JSON
                 data = JSON.parse(data);
             } catch (e) {
                 error('Passed string is not a JSON string > ' + data);
@@ -166,12 +167,11 @@
         if (!key) return;
         var parts = parseString(key, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
-            if(!ref) return;
+            if (!ref) return;
             var part = ref[parts[i]];
 
             if (typeof part === 'undefined' || part === null)
                 return;
-
             //if last
             if (i === l - 1) {
                 return part;
@@ -193,7 +193,7 @@
             }
         }
     }
-    
+
     function setValueToInput(input, value, triggerChange) {
         var nodeType = input.type && input.type.toLowerCase();
 
@@ -204,14 +204,14 @@
             case 'checkbox':
                 input.checked = isArray(value)
                     ? value.indexOf(input.value) !== -1
-                    : value === true || value === input.value
+                    : value === true || value === input.value;
                 break;
             case 'select-multiple':
                 if (isArray(value))
                     for (var i = input.options.length; i--;)
                         input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
-				else
-					input.value = value;
+                else
+                    input.value = value;
                 break;
             case 'button':
             case 'submit':
@@ -260,10 +260,10 @@
     }
 
     /* Submit */
-    function submit(formEl, HTML5Submit) {
+    function submit(formEl, html5Submit) {
         var el = makeElement(formEl);
 
-        if (!HTML5Submit) {
+        if (!html5Submit) {
             if (isFunction(el.submit))
                 el.submit();
             else
@@ -291,7 +291,7 @@
         return n - parseFloat(n) + 1 >= 0;
     }
     function isArray(arr) {
-        return !!(arr && arr.shift);//If it shifts like an array, its a duck.
+        return !!(arr && arr.shift); //If it shifts like an array, its a duck.
     }
     function isFunction(fn) {
         return typeof fn === 'function';
