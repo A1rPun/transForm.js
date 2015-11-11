@@ -12,7 +12,7 @@
         skipDisabled: true,
         skipReadOnly: false,
         skipFalsy: false,
-        useIdOnEmptyName: false,
+        useIdOnEmptyName: true,
         triggerChange: false
     };
 
@@ -102,8 +102,7 @@
 
     function saveEntryToResult(parent, entry, input, delimiter) {
         //not not accept falsy values in array collections
-        if (/\[\]$/.test(entry.name) && !entry.value)
-            return;
+        if (/\[\]$/.test(entry.name) && !entry.value) return;
         var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
             var part = parts[i];
@@ -170,8 +169,7 @@
             if (!ref) return;
             var part = ref[parts[i]];
 
-            if (typeof part === 'undefined' || part === null)
-                return;
+            if (typeof part === 'undefined' || part === null) return;
             //if last
             if (i === l - 1) {
                 return part;
@@ -181,11 +179,10 @@
                     return part;
                 } else if (isNumber(index)) {
                     //if second last
-                    if (i === l - 2) {
+                    if (i === l - 2)
                         return part[index];
-                    } else {
+                    else
                         ref = part[index];
-                    }
                     i++;
                 } else {
                     ref = part;
@@ -194,22 +191,28 @@
         }
     }
 
+    function contains(array, value) {
+        for (var i = array.length; i--;)
+            if (array[i] == value) return true;
+        return false;
+    }
+    
     function setValueToInput(input, value, triggerChange) {
         var nodeType = input.type && input.type.toLowerCase();
 
         switch (nodeType) {
             case 'radio':
-                if ("" + value === input.value) input.checked = true;
+                if (value == input.value) input.checked = true;
                 break;
             case 'checkbox':
                 input.checked = isArray(value)
-                    ? value.indexOf(input.value) !== -1
-                    : value === true || value === input.value;
+                    ? contains(value, input.value)
+                    : value === true || value == input.value;
                 break;
             case 'select-multiple':
                 if (isArray(value))
                     for (var i = input.options.length; i--;)
-                        input.options[i].selected = value.indexOf(input.options[i].value) !== -1;
+                        input.options[i].selected = contains(value, input.options[i].value);
                 else
                     input.value = value;
                 break;

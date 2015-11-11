@@ -153,8 +153,9 @@ Overrides the default options in the `transForm` instance.
 	transForm.setDefaults({
 		delimiter: '.', //The delimiter seperates the object keys (serialize, deserialize)
 		skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear)
+		skipReadOnly: false, //Skip inputs that are readonly (serialize, deserialize, clear)
 		skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
-		useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
+		useIdOnEmptyName: true, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
         triggerChange: false //Fires the change listener for every field when deserializing (even if the value is not changed)
 	});
 
