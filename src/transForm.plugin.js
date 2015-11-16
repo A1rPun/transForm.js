@@ -39,8 +39,6 @@ var test = $('div').transForm('serialize');
         }
     });
 
-    $.fn.transForm = f;
-
     $.fn.transForm.defaults = {
         delimiter: '.',
         skipDisabled: true,
