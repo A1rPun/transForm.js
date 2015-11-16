@@ -1,16 +1,16 @@
 ﻿/*
-//Defaults can be overwritten in jQuery style
+//Defaults can be overwritten in $tyle
 $.fn.transForm.defaults.useIdOnEmptyName = false;
 //Methods can be chained
-$('div').transForm('deserialize', {library: 'jQuery'}).transForm('submit');
+$('div').transForm('deserialize', {library: 'jQuery/Zepto'}).transForm('submit');
 //Return value of serialize is an array of objects
 var test = $('div').transForm('serialize');
 //TODO:
 - Tests
-- MOAR jQuery functions!
+- MOAR $$$ functions!
 */
 
-(function($){
+(function ($) {
 
     var methods = {
         serialize: serialize,
@@ -19,25 +19,29 @@ var test = $('div').transForm('serialize');
         submit: submit,
     };
 
-    $.fn.transForm = function(methodOrOptions) {
-        if (methods[methodOrOptions] ) {
-			var args = Array.prototype.slice.call(arguments, 1);
-			if(methodOrOptions === 'serialize'){
-				var result = [];
-				this.each(function() {
-					result.push(methods[methodOrOptions].apply(this, args));
-				});
-				return result;				
-			} else
-				return this.each(function() {
-					methods[methodOrOptions].apply(this, args);
-				});
-        } else {
-            error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.transForm' );
-        }    
-    };
-	
-	$.fn.transForm.defaults = {
+    $.extend($.fn, {
+        transForm: function (methodOrOptions) {
+            if (methods[methodOrOptions]) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                if (methodOrOptions === 'serialize') {
+                    var result = [];
+                    this.each(function () {
+                        result.push(methods[methodOrOptions].apply(this, args));
+                    });
+                    return result;
+                } else
+                    return this.each(function () {
+                        methods[methodOrOptions].apply(this, args);
+                    });
+            } else {
+                error('Method ' + methodOrOptions + ' does not exist on transForm.js');
+            }
+        }
+    });
+
+    $.fn.transForm = f;
+
+    $.fn.transForm.defaults = {
         delimiter: '.',
         skipDisabled: true,
         skipReadOnly: false,
@@ -45,8 +49,8 @@ var test = $('div').transForm('serialize');
         useIdOnEmptyName: true,
         triggerChange: false
     };
-	
-	/* Serialize */
+
+    /* Serialize */
     function serialize(options, nodeCallback) {
         var result = {},
             opts = getOptions(options),
@@ -224,7 +228,7 @@ var test = $('div').transForm('serialize');
             if (array[i] == value) return true;
         return false;
     }
-    
+
     function setValueToInput(input, value, triggerChange) {
         var nodeType = input.type && input.type.toLowerCase();
 
@@ -253,7 +257,7 @@ var test = $('div').transForm('serialize');
                 input.value = value;
         }
         if (triggerChange)
-			$(input).change();
+            $(input).change();
     }
 
     /* Clear */
@@ -291,7 +295,7 @@ var test = $('div').transForm('serialize');
 
     /* Submit */
     function submit(html5Submit) {
-		var el = this;
+        var el = this;
         if (!html5Submit) {
             if (isFunction(el.submit))
                 el.submit();
@@ -306,25 +310,25 @@ var test = $('div').transForm('serialize');
             btn.style.display = 'none';
             el.appendChild(btn);
         }
-		$(btn).click();
+        $(btn).click();
         if (clean) el.removeChild(btn);
     }
 
     /* Helper functions */
     function isObject(obj) {
-        return jQuery.type(s) === 'object';
+        return $.type(s) === 'object';
     }
     function isNumber(n) {
-        return jQuery.type(s) === 'number';
+        return $.type(s) === 'number';
     }
     function isArray(arr) {
-        return jQuery.type(s) === 'array';
+        return $.type(s) === 'array';
     }
     function isFunction(fn) {
-        return jQuery.type(s) ===  'function';
+        return $.type(s) === 'function';
     }
     function isString(s) {
-        return jQuery.type(s) === 'string';
+        return $.type(s) === 'string';
     }
 
     function getFields(parent, skipDisabled, skipReadOnly) {
@@ -340,7 +344,7 @@ var test = $('div').transForm('serialize');
     }
 
     function getOptions(options) {
-		var _defaults = $.fn.transForm.defaults;
+        var _defaults = $.fn.transForm.defaults;
         if (!isObject(options)) return _defaults;
         var o, opts = {};
         for (o in _defaults) opts[o] = _defaults[o];
@@ -351,4 +355,4 @@ var test = $('div').transForm('serialize');
     function error(e) {
         $.error('transForm.js ♦ ' + e);
     }
-})(jQuery);
+})(window.Zepto || window.jQuery);
