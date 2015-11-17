@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>transForm.js Test</title>
     <style>
         html, body {
@@ -63,7 +65,7 @@
                     <input id="skipDisabled" type="checkbox" checked/><label for="skipDisabled">skipDisabled</label><br/>
                     <input id="skipReadOnly" type="checkbox" /><label for="skipReadOnly">skipReadOnly</label><br />
                     <input id="skipFalsy" type="checkbox" /><label for="skipFalsy">skipFalsy</label><br />
-                    <input id="useIdOnEmptyName" type="checkbox" checked /><label for="useIdOnEmptyName">useIdOnEmptyName</label>
+                    <input id="useIdOnEmptyName" type="checkbox" /><label for="useIdOnEmptyName">useIdOnEmptyName</label>
                 </div>
                 <div class="block">
                     <label>delimiter</label><input name="delimiter" type="text" value="." />
@@ -75,52 +77,52 @@
                 <div class="block">
                     <form id="myForm">
                         <label>Input</label><br />
-                        <input name="test.text.input" value="JavaScript" /><br />
+                        <input name="text.input" value="JavaScript" /><br />
                         <label>Required Input</label><br />
-                        <input name="test.text.required" value="" required="required" /><br />
+                        <input name="text.required" required="required" value="" /><br />
                         <label>Disabled input</label><br />
-                        <input name="test.text.disabledinput" disabled="disabled" value="Disabled"/><br/>
+                        <input name="text.disabledinput" disabled="disabled" value="Disabled"/><br/>
                         <label>Readonly input</label><br />
-                        <input name="test.text.readonlyinput" readonly="readonly" value="Readonly" /><br />
+                        <input name="text.readonlyinput" readonly="readonly" value="Readonly" /><br />
                         <label>Input without name with id</label><br />
-                        <input id="test.text.inputwithId" value="got an idea?" /><br />
+                        <input id="text.inputwithId" value="got an idea?" /><br />
                         <label>Input without name without id</label><br />
                         <input value="Identify me" /><br />
                         <label>Checkboxes</label><br />
-                        <input name="test.checbox.checkno" type="checkbox" />
-                        <input name="test.checbox.checkdefault" type="checkbox" checked />
-                        <input name="test.checbox.checkwithvalue" type="checkbox" value="myValue" checked /><br />
+                        <input name="checkbox.checkno" type="checkbox" />
+                        <input name="checkbox.checkdefault" type="checkbox" checked />
+                        <input name="checkbox.checkwithvalue" type="checkbox" value="myValue" checked /><br />
                         <label>Checkbox array</label><br />
-                        <input name="test.checbox.checkarray[]" type="checkbox" value="checkbox1" checked />
-                        <input name="test.checbox.checkarray[]" type="checkbox" value="checkbox2" checked />
-                        <input name="test.checbox.checkarray[]" type="checkbox" value="checkbox3" /><br />
+                        <input name="checkbox.checkarray[]" type="checkbox" value="1" checked />
+                        <input name="checkbox.checkarray[]" type="checkbox" value="2" checked />
+                        <input name="checkbox.checkarray[]" type="checkbox" value="3" /><br />
                         <label>Radiobuttons</label><br />
-                        <input name="test.radio" type="radio" value="option1" checked />
-                        <input name="test.radio" type="radio" value="option2" />
-                        <input name="test.radio" type="radio" value="option3" /><br />
+                        <input name="radio" type="radio" value="1" checked />
+                        <input name="radio" type="radio" value="2" />
+                        <input name="radio" type="radio" value="3" /><br />
                         <label>Textarea</label><br />
-                        <textarea name="test.textarea">default text</textarea><br />
+                        <textarea name="textarea">default text</textarea><br />
                         <label>Select</label><br />
-                        <select name="test.select.single">
-                            <option value="javascript">JavaScript</option>
-                            <option value="html" selected>HTML</option>
-                            <option value="css">CSS</option>
+                        <select name="select.single">
+                            <option value="1">JavaScript</option>
+                            <option value="2" selected>HTML</option>
+                            <option value="3">CSS</option>
                         </select><br />
                         <label>Multiselect</label><br />
-                        <select name="test.select.multi" multiple>
-                            <option value="javascript">JavaScript</option>
-                            <option value="html" selected>HTML</option>
-                            <option value="css" selected>CSS</option>
-                            <option value="regex">RegEx</option>
+                        <select name="select.multi" multiple>
+                            <option value="1">JavaScript</option>
+                            <option value="2" selected>HTML</option>
+                            <option value="3" selected>CSS</option>
+                            <option value="4">RegEx</option>
                         </select><br/>
                         <label>Other input types</label><br />
-                        <input name="test.date" type="date"/><br/>
-                        <input name="test.time" type="time" value="13:37" /><br />
-                        <input name="test.file" type="file"/><br/>
-                        <input name="test.color" type="color"/><br/>
-                        <input name="test.number" type="number" value="1337"/><br/>
-                        <input name="test.password" type="password" value="password"/><br/>
-                        <input name="test.range" type="range"/><br/>
+                        <input name="date" type="date"/><br/>
+                        <input name="time" type="time" value="13:37" /><br />
+                        <input name="file" type="file"/><br/>
+                        <input name="color" type="color"/><br/>
+                        <input name="number" type="number" value="1337"/><br/>
+                        <input name="password" type="password" value="password"/><br/>
+                        <input name="range" type="range"/><br/>
                         
                         <button type="button" id="serialize">Serialize</button><br />
                         <button type="button" id="clear">Clear</button><br />

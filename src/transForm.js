@@ -1,4 +1,4 @@
-﻿(function(name, definition) {
+﻿(function (name, definition) {
     if (typeof module != 'undefined') module.exports = definition();
     else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
     else {
@@ -6,42 +6,140 @@
         this[name] = definition();
         if (noConflict) this[name].noConflict = noConflict;
     }
-}('transForm', function() {
+}('transForm', function () {
     var _defaults = {
-        delimiter: '.',
-        skipDisabled: true,
-        skipReadOnly: false,
-        skipFalsy: false,
-        useIdOnEmptyName: true,
-        triggerChange: false
-    };
+            bindListener: 'change',
+            delimiter: '.',
+            skipDisabled: true,
+            skipReadOnly: false,
+            skipFalsy: false,
+            useIdOnEmptyName: true,
+            triggerChange: false
+        },
+        binding = false;
+
+    /* Bind */
+    function bind(formEl, options, serializeCallback, deserializeCallback) {
+        var el = makeElement(formEl),
+            opts = getOptions(options),
+            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
+            lookup = {}, obj,
+            result = {};
+        binding = true;
+
+        for (var i = 0, l = inputs.length; i < l; i++) {
+            var input = inputs[i],
+                key = input.name || opts.useIdOnEmptyName && input.id;
+
+            if (!key) continue;
+            var entry = getEntry(input, key, serializeCallback);
+            obj = lookup[entry.name];
+
+            if (obj) {
+                obj.inputs.push(input);
+                if (isValidValue(entry.value, opts.skipFalsy)) obj.entries.push(entry);
+            } else {
+                lookup[entry.name] = { entries: [entry], inputs: [input] }
+            }
+        }
+
+        for (var name in lookup) {
+            obj = lookup[name];
+
+            if (obj.inputs.length > 1) {
+                //multiple inputs
+                var pointers = saveEntryToResult(result, {
+                    name: name,
+                    value: getValueFromInputs(obj.inputs, name, serializeCallback, opts.skipFalsy)
+                }, opts.delimiter);
+                createProperty(pointers.pointer, pointers.prop, (function (inputs) {
+                    return function (value) {
+                        for (var i = 0, l = inputs.length; i < l; i++) {
+                            var input = inputs[i],
+                                mutated = deserializeCallback && deserializeCallback(input, value);
+                            if (!mutated) setValueToInput(input, value, false);
+                        }
+                        return value;
+                    }
+                }(obj.inputs)));
+                for (var i = 0, l = obj.inputs.length; i < l; i++) {
+                    obj.inputs[i].addEventListener(opts.bindListener, (function (p, key, inputs) {
+                        return function () {
+                            binding = true;
+                            p.pointer[p.prop] = getValueFromInputs(inputs, key, serializeCallback, opts.skipFalsy);
+                            binding = false;
+                        }
+                    }(pointers, name, obj.inputs)));
+                }
+            } else {
+                //single input
+                var pointers = saveEntryToResult(result, obj.entries[0], opts.delimiter);
+                createProperty(pointers.pointer, pointers.prop, (function (input) {
+                    return function (value) {
+                        var mutated = deserializeCallback && deserializeCallback(input, value);
+                        if (!mutated) setValueToInput(input, value, false);
+                        return value;
+                    }
+                }(obj.inputs[0])));
+                obj.inputs[0].addEventListener(opts.bindListener, (function (p, key) {
+                    return function () {
+                        binding = true;
+                        var value = getEntry(this, key, serializeCallback).value;
+                        if (isValidValue(value, opts.skipFalsy)) p.pointer[p.prop] = value;
+                        binding = false;
+                    }
+                }(pointers)));
+            }
+        }
+        binding = false;
+        return result;
+    }
+
+    function getValueFromInputs(inputs, key, serializeCallback, skipFalsy) {
+        var result = [];
+        for (var i = 0, l = inputs.length; i < l; i++) {
+            var value = getEntry(inputs[i], key, serializeCallback).value;
+            if (isValidValue(value, skipFalsy)) result.push(value);
+        }
+        return result.length < 2 ? result[0] : result;
+    }
+
+    function createProperty(object, prop, setter) {
+        var _value = object[prop];
+        Object.defineProperty(object, prop, {
+            configurable: true,
+            enumerable: true,
+            get: function () { return _value; },
+            set: function (val) { _value = binding ? val : setter(val); }
+        });
+    }
 
     /* Serialize */
     function serialize(formEl, options, nodeCallback) {
         var el = makeElement(formEl),
-            result = {},
             opts = getOptions(options),
             inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
-            skipFalsy = opts.skipFalsy,
-            delimiter = opts.delimiter,
-            useIdOnEmptyName = opts.useIdOnEmptyName;
+            result = {};
 
         for (var i = 0, l = inputs.length; i < l; i++) {
             var input = inputs[i],
-                key = input.name || useIdOnEmptyName && input.id;
+                key = input.name || opts.useIdOnEmptyName && input.id;
 
             if (!key) continue;
+            var entry = getEntry(input, key, nodeCallback);
 
-            var entry = null;
-            if (nodeCallback) entry = nodeCallback(input);
-            if (!entry) entry = getEntryFromInput(input, key);
-
-            if (typeof entry.value === 'undefined' || entry.value === null
-                || (skipFalsy && (!entry.value || (isArray(entry.value) && !entry.value.length))))
-                continue;
-            saveEntryToResult(result, entry, input, delimiter);
+            if (!isValidValue(entry.value, opts.skipFalsy)) continue;
+            saveEntryToResult(result, entry, opts.delimiter);
         }
         return result;
+    }
+
+    function getEntry(input, key, nodeCallback) {
+        return nodeCallback ? nodeCallback(input, key) : getEntryFromInput(input, key);
+    }
+
+    function isValidValue(value, skipFalsy) {
+        return !(typeof value === 'undefined' || value === null || (skipFalsy && (!value || (isArray(value) && !value.length))))
     }
 
     function getEntryFromInput(input, key) {
@@ -100,7 +198,7 @@
         return result;
     }
 
-    function saveEntryToResult(parent, entry, input, delimiter) {
+    function saveEntryToResult(parent, entry, delimiter) {
         //not not accept falsy values in array collections
         if (/\[\]$/.test(entry.name) && !entry.value) return;
         var parts = parseString(entry.name, delimiter);
@@ -110,14 +208,17 @@
             if (i === l - 1) {
                 parent[part] = entry.value;
             } else {
+                //check if the next part is an index
                 var index = parts[i + 1];
                 if (!index || isNumber(index)) {
                     if (!isArray(parent[part]))
                         parent[part] = [];
                     //if second last
                     if (i === l - 2) {
+                        //array of values
                         parent[part].push(entry.value);
                     } else {
+                        //array of objects
                         if (!isObject(parent[part][index]))
                             parent[part][index] = {};
                         parent = parent[part][index];
@@ -130,13 +231,13 @@
                 }
             }
         }
+        return { pointer: parent, prop: part };
     }
 
     /* Deserialize */
     function deserialize(formEl, data, options, nodeCallback) {
         var el = makeElement(formEl),
             opts = getOptions(options),
-            triggerChange = opts.triggerChange,
             inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly);
 
         if (!isObject(data)) {
@@ -154,11 +255,11 @@
                 value = getFieldValue(key, opts.delimiter, data);
 
             if (typeof value === 'undefined' || value === null) {
-                clearInput(input, triggerChange);
+                clearInput(input, opts.triggerChange);
                 continue;
             }
             var mutated = nodeCallback && nodeCallback(input, value);
-            if (!mutated) setValueToInput(input, value, triggerChange);
+            if (!mutated) setValueToInput(input, value, opts.triggerChange);
         }
     }
 
@@ -196,7 +297,7 @@
             if (array[i] == value) return true;
         return false;
     }
-    
+
     function setValueToInput(input, value, triggerChange) {
         var nodeType = input.type && input.type.toLowerCase();
 
@@ -232,11 +333,10 @@
     function clear(formEl, options) {
         var el = makeElement(formEl),
             opts = getOptions(options),
-            triggerChange = opts.triggerChange,
             inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly);
 
         for (var i = 0, l = inputs.length; i < l; i++)
-            clearInput(inputs[i], triggerChange);
+            clearInput(inputs[i], opts.triggerChange);
     }
 
     function clearInput(input, triggerChange) {
@@ -313,7 +413,7 @@
             e = document.createEventObject();
             el.fireEvent('on' + type, e);
         }
-    };
+    }
 
     function makeElement(el) {
         var element = isString(el) ? document.querySelector(el) || document.getElementById(el) : el;
@@ -348,9 +448,9 @@
     function error(e) {
         throw new Error('transForm.js ♦ ' + e);
     }
-
     /* Exposed functions */
     return {
+        bind: bind,
         serialize: serialize,
         deserialize: deserialize,
         clear: clear,

@@ -26,8 +26,8 @@
 	}
 
 	function deserialize() {
-		var myObject = JSON.parse(out.value);
-		transForm.deserialize(myForm, myObject, getOptions());
+        //TODO: validate
+		transForm.deserialize(myForm, out.value, getOptions());
 	}
 
 	function serialize() {
@@ -42,7 +42,10 @@
 	function submit() {
 	    transForm.submit(myForm, true);
 	}
-	
+
+	function bind() {
+	    window.test = transForm.bind(myForm);
+	}
 	serialize();
-	//out.value += '\n'+JSON.stringify(transForm.serialize('.testform'), null, 4);
+	bind();
 }());

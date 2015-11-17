@@ -95,7 +95,7 @@ Serializes the HTML form to a JavaScript object
 
 - formElement - Can be an HTMLElement or querySelector string
 - options - An object containing serialize options
-- nodeCallback - Function that will be executed for every input (param: input)
+- nodeCallback - Function that will be executed for every input (param: `input`, `name`) return an `{ name: key, value: null }` object.
 
 ###Example
 
@@ -109,7 +109,7 @@ Deserializes a JavaScript object to a HTML form
 - formElement - Can be an HTMLElement or querySelector string
 - data - The data that needs to be deserialized
 - options - An object containing deserialize options
-- nodeCallback - Function that will be executed for every input (params: input, value)
+- nodeCallback - Function that will be executed for every input (params: input, value) return a truthy value to skip deserializing that input.
 
 ###Example
 
@@ -155,15 +155,17 @@ Overrides the default options in the `transForm` instance.
 		skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear)
 		skipReadOnly: false, //Skip inputs that are readonly (serialize, deserialize, clear)
 		skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
-		useIdOnEmptyName: true, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
+		useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
         triggerChange: false //Fires the change listener for every field when deserializing (even if the value is not changed)
 	});
 
 #TODO's
 
-- Unit test
-- Performance test
-- jQuery/Zepto plugin
+- Gulp for automated
+	- Distribution
+	- Testing & Code coverage
+- Online examples / docs
+	
 
 #Browser support
 Supports >=IE9 and latest versions of modern browsers.
