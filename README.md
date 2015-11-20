@@ -33,7 +33,7 @@ Add the source to the HTML:
 Basic example:
 
 	<form id="transform">
-		<input type="text" name="transform" value="transform">
+		<input name="test" value="transform">
 	</form>
 
 Pass a query string or an `HTMLElement` to any of the functions.
@@ -43,7 +43,7 @@ The parent element can be any element but `.submit()` will only work with `<form
 
 Variable `obj` now holds this object:
 
-	{ transform: 'transform' }
+	{ test: 'transform' }
 
 To deserialize this object into the form use the same structure
 
@@ -53,20 +53,20 @@ Using the `.` delimiter, one can specify an object inside the result object.
 Other structures:
 
 	<form id="transform">
-		<input type="text" name="person.name" value="Gino Dino">
-		<input type="text" name="person[job]" value="Programmer">
-		<input type="checkbox" name="person.hobbies[]" value="Programming" checked>
-		<input type="checkbox" name="person.hobbies[]" value="Gaming">
-		<input type="text" name="person.address[0].street" value="Inspirationstreet">
-		<input type="text" name="person.address[1].street" value="Objectionlane">
-		<input type="text" name="t.r.a.n.s.f.o.r.m" value="transform">
+		<input name="person.name" value="Thom Bakker">
+		<input name="person[job]" value="Programmer">
+		<input name="person.hobbies[]" type="checkbox" value="Programming" checked>
+		<input name="person.hobbies[]" type="checkbox" value="Gaming">
+		<input name="person.address[0].street" value="Inspirationstreet">
+		<input name="person.address[1].street" value="Objectionlane">
+		<input name="t.r.a.n.s.f.o.r.m" value="foo">
 	</form>
 
 Outputs:
 
 	{
 		person: {
-			name: 'Gino Dino',
+			name: 'Thom Bakker',
 			job: 'Programmer',
 			hobbies: [
 				'Programming'
@@ -77,7 +77,7 @@ Outputs:
 				street: 'Objectionlane'
 			}]
 		},
-		t:{r:{a:{n:{s:{f:{o:{r:{m:{}}}}}}}}}
+		t:{r:{a:{n:{s:{f:{o:{r:{m: 'foo' }}}}}}}}
 	}
 
 To ignore an input, select or textarea you can add the ignore data attribute like this:
@@ -188,7 +188,7 @@ Overrides the default options in the `transForm` instance.
 		skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
 		useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize, bind)
         triggerChange: false, //Fires the change listener for every field when deserializing (even if the value is not changed) (deserialize)
-		bindListener: 'change' //The event where the bind fnuction updates its object (bind)
+		bindListener: 'change' //The event where the bind function updates its object (bind)
 	});
 
 #TODO's
