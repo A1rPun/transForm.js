@@ -346,6 +346,10 @@
             case 'select-one':
                 input.selectedIndex = 0;
                 break;
+			case 'select-multiple':
+				for (var i = input.options.length; i--;)
+					input.options[i].selected = false;
+				break;
             case 'radio':
             case 'checkbox':
                 if (input.checked) input.checked = false;
