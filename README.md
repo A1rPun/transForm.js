@@ -8,7 +8,6 @@ It's goal is to easily transform html forms to structured javascript objects and
 - [`transForm.deserialize()`](#deserialize)
 - [`transForm.clear()`](#clear)
 - [`transForm.submit()`](#submit)
-- [`transForm.bind()`](#bind)
 - [`transForm.setDefaults()`](#setdefaults)
 
 ##Installation
@@ -150,27 +149,7 @@ Submits a form element which triggers the `submit` event of the form. You can pr
 ###Example
 
 	transForm.submit('#myForm', true);
-
-##<a name="bind">`transForm.bind()`
-Creates a two-way data binding for all child inputs from any HTML element.
-
-###Params
-
-- formElement - Can be a `HTMLElement` or a querySelector string
-- options - An object containing the bind options
-- serializeCallback - The nodeCallback from the serialize function (triggers on change, can be overwritten by the `bindListener` option)
-- deserializeCallback - The nodeCallback from the deserialize function (triggers on the setter of the property)
-
-###Example
-
-	<form id="myForm">
-		<input name="test" value="transform">
-	</form>
-
-	var myFormObject = transForm.bind('#myForm');
-	myFormObject.test = 'instant';
-	
-
+    
 ##<a name="setdefaults">`transForm.setDefaults()`
 Overrides the default options in the `transForm` instance.
 
@@ -182,13 +161,12 @@ Overrides the default options in the `transForm` instance.
 
 	//These are the current defaults
 	transForm.setDefaults({
-		delimiter: '.', //The delimiter seperates the object keys (serialize, deserialize, bind)
-		skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear, bind)
-		skipReadOnly: false, //Skip inputs that are readonly (serialize, deserialize, clear, bind)
+		delimiter: '.', //The delimiter seperates the object keys (serialize, deserialize)
+		skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear)
+		skipReadOnly: false, //Skip inputs that are readonly (serialize, deserialize, clear)
 		skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
-		useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize, bind)
+		useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
         triggerChange: false, //Fires the change listener for every field when deserializing (even if the value is not changed) (deserialize)
-		bindListener: 'change' //The event where the bind function updates its object (bind)
 	});
 
 #TODO's

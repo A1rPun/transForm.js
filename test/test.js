@@ -43,9 +43,5 @@
 	    transForm.submit(myForm, true);
 	}
 
-	function bind() {
-	    window.test = transForm.bind(myForm);
-	}
 	serialize();
-	bind();
 }());

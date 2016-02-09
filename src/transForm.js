@@ -8,7 +8,6 @@
     }
 }('transForm', function () {
     var _defaults = {
-            bindListener: 'change',
             delimiter: '.',
             skipDisabled: true,
             skipReadOnly: false,
@@ -17,103 +16,7 @@
             triggerChange: false
         },
         binding = false;
-
-    /* Bind */
-    function bind(formEl, options, serializeCallback, deserializeCallback) {
-        var el = makeElement(formEl),
-            opts = getOptions(options),
-            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
-            lookup = {}, obj,
-            result = {};
-        binding = true;
-
-        for (var i = 0, l = inputs.length; i < l; i++) {
-            var input = inputs[i],
-                key = input.name || opts.useIdOnEmptyName && input.id;
-
-            if (!key) continue;
-            var entry = getEntry(input, key, serializeCallback);
-            obj = lookup[entry.name];
-
-            if (obj) {
-                obj.inputs.push(input);
-                if (isValidValue(entry.value, opts.skipFalsy)) obj.entries.push(entry);
-            } else {
-                lookup[entry.name] = { entries: [entry], inputs: [input] }
-            }
-        }
-
-        for (var name in lookup) {
-            obj = lookup[name];
-
-            if (obj.inputs.length > 1) {
-                //multiple inputs
-                var pointers = saveEntryToResult(result, {
-                    name: name,
-                    value: getValueFromInputs(obj.inputs, name, serializeCallback, opts.skipFalsy)
-                }, opts.delimiter);
-                createProperty(pointers.pointer, pointers.prop, (function (inputs) {
-                    return function (value) {
-                        for (var i = 0, l = inputs.length; i < l; i++) {
-                            var input = inputs[i],
-                                mutated = deserializeCallback && deserializeCallback(input, value);
-                            if (!mutated) setValueToInput(input, value, false);
-                        }
-                        return value;
-                    }
-                }(obj.inputs)));
-                for (var i = 0, l = obj.inputs.length; i < l; i++) {
-                    obj.inputs[i].addEventListener(opts.bindListener, (function (p, key, inputs) {
-                        return function () {
-                            binding = true;
-                            p.pointer[p.prop] = getValueFromInputs(inputs, key, serializeCallback, opts.skipFalsy);
-                            binding = false;
-                        }
-                    }(pointers, name, obj.inputs)));
-                }
-            } else {
-                //single input
-                var pointers = saveEntryToResult(result, obj.entries[0], opts.delimiter);
-                createProperty(pointers.pointer, pointers.prop, (function (input) {
-                    return function (value) {
-                        var mutated = deserializeCallback && deserializeCallback(input, value);
-                        if (!mutated) setValueToInput(input, value, false);
-                        return value;
-                    }
-                }(obj.inputs[0])));
-                obj.inputs[0].addEventListener(opts.bindListener, (function (p, key) {
-                    return function () {
-                        binding = true;
-                        var value = getEntry(this, key, serializeCallback).value;
-                        if (isValidValue(value, opts.skipFalsy)) p.pointer[p.prop] = value;
-                        binding = false;
-                    }
-                }(pointers)));
-            }
-        }
-        binding = false;
-        return result;
-    }
-
-    function getValueFromInputs(inputs, key, serializeCallback, skipFalsy) {
-        var result = [];
-        for (var i = 0, l = inputs.length; i < l; i++) {
-            var value = getEntry(inputs[i], key, serializeCallback).value;
-            if (isValidValue(value, skipFalsy)) result.push(value);
-        }
-        return result.length < 2 ? result[0] : result;
-    }
-
-    function createProperty(object, prop, setter) {
-        var _value = object[prop];
-        Object.defineProperty(object, prop, {
-            configurable: true,
-            enumerable: true,
-            get: function () { return _value; },
-            set: function (val) { _value = binding ? val : setter(val); }
-        });
-    }
-
+    
     /* Serialize */
     function serialize(formEl, options, nodeCallback) {
         var el = makeElement(formEl),
@@ -454,7 +357,6 @@
     }
     /* Exposed functions */
     return {
-        bind: bind,
         serialize: serialize,
         deserialize: deserialize,
         clear: clear,
