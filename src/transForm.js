@@ -14,8 +14,7 @@
             skipFalsy: false,
             useIdOnEmptyName: true,
             triggerChange: false
-        },
-        binding = false;
+        };
     
     /* Serialize */
     function serialize(formEl, options, nodeCallback) {
@@ -29,7 +28,9 @@
                 key = input.name || opts.useIdOnEmptyName && input.id;
 
             if (!key) continue;
-            var entry = getEntry(input, key, nodeCallback);
+            var entry = null;
+            if (nodeCallback) entry = nodeCallback(input, key);
+            if (!entry) entry = getEntryFromInput(input, key)
 
             if (!isValidValue(entry.value, opts.skipFalsy)) continue;
             saveEntryToResult(result, entry, opts.delimiter);
@@ -37,9 +38,6 @@
         return result;
     }
 
-    function getEntry(input, key, nodeCallback) {
-        return nodeCallback ? nodeCallback(input, key) : getEntryFromInput(input, key);
-    }
 
     function isValidValue(value, skipFalsy) {
         return !(typeof value === 'undefined' || value === null || (skipFalsy && (!value || (isArray(value) && !value.length))))
