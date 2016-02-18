@@ -195,21 +195,25 @@
 
     function contains(array, value) {
         for (var i = array.length; i--;)
-            if (array[i] == value) return true;
+            if (array[i].toString() === value) return true;
         return false;
     }
 
     function setValueToInput(input, value, triggerChange) {
-        var nodeType = input.type && input.type.toLowerCase();
-
+        var nodeType = input.type && input.type.toLowerCase(),
+            doChange = true;
+        //In some cases 'value' will be converted toString because input.value is always a string.
         switch (nodeType) {
             case 'radio':
-                if (value == input.value) input.checked = true;
+                if (value.toString() === input.value)
+                    input.checked = true;
+                else
+                    doChange = false;
                 break;
             case 'checkbox':
                 input.checked = isArray(value)
                     ? contains(value, input.value)
-                    : value === true || value == input.value;
+                    : value === true || value.toString() === input.value;
                 break;
             case 'select-multiple':
                 if (isArray(value))
@@ -226,7 +230,7 @@
             default:
                 input.value = value;
         }
-        if (triggerChange)
+        if (doChange && triggerChange)
             triggerEvent(input, 'change');
     }
 
