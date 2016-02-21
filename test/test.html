@@ -77,15 +77,15 @@
                 <div class="block">
                     <form id="myForm">
                         <label>Input</label><br />
-                        <input name="text.input" value="JavaScript" /><br />
+                        <input name="input.simple" value="JavaScript" /><br />
                         <label>Required Input</label><br />
-                        <input name="text.required" required="required" value="" /><br />
+                        <input name="input.required" required="required" value="" /><br />
                         <label>Disabled input</label><br />
-                        <input name="text.disabledinput" disabled="disabled" value="Disabled"/><br/>
+                        <input name="input.disabledinput" disabled="disabled" value="Disabled"/><br/>
                         <label>Readonly input</label><br />
-                        <input name="text.readonlyinput" readonly="readonly" value="Readonly" /><br />
+                        <input name="input.readonlyinput" readonly="readonly" value="Readonly" /><br />
                         <label>Input without name with id</label><br />
-                        <input id="text.inputwithId" value="got an idea?" /><br />
+                        <input id="input.inputwithId" value="got an idea?" /><br />
                         <label>Input without name without id</label><br />
                         <input value="Identify me" /><br />
                         <label>Checkboxes</label><br />
@@ -102,14 +102,14 @@
                         <input name="radio" type="radio" value="3" /><br />
                         <label>Textarea</label><br />
                         <textarea name="textarea">default text</textarea><br />
-                        <label>Select</label><br />
-                        <select name="select.single">
+                        <label>Select + Get display value</label><br />
+                        <select name="select.single" data-transform-text="text.select">
                             <option value="1">JavaScript</option>
                             <option value="2" selected>HTML</option>
                             <option value="3">CSS</option>
                         </select><br />
                         <label>Multiselect</label><br />
-                        <select name="select.multi" multiple>
+                        <select name="select.multi" multiple data-transform-text="text.multi">
                             <option value="1">JavaScript</option>
                             <option value="2" selected>HTML</option>
                             <option value="3" selected>CSS</option>
@@ -123,7 +123,11 @@
                         <input name="number" type="number" value="1337"/><br/>
                         <input name="password" type="password" value="password"/><br/>
                         <input name="range" type="range"/><br/>
-                        
+                        <label>Ignore input</label><br />
+                        <input name="ignoreme" value="ignoreme" data-transform-ignore="" /><br />
+                        <label>Set text on any element</label><br />
+                        <div data-transform-text="text.div">There is some text here</div>
+
                         <button type="button" id="serialize">Serialize</button><br />
                         <button type="button" id="clear">Clear</button><br />
                         <!-- Can also be type="submit" because the button is inside the form -->

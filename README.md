@@ -81,7 +81,7 @@ Outputs:
 
 To ignore an input, select or textarea you can add the ignore data attribute like this:
 
-    data-trans-form="ignore"
+    <input name="ignoreme" data-transform-ignore />
 
 ##History
 This project is inspired by [maxatwork/form2js](https://github.com/maxatwork/form2js).  

@@ -8,70 +8,95 @@
     }
 }('transForm', function () {
     var _defaults = {
-            delimiter: '.',
-            skipDisabled: true,
-            skipReadOnly: false,
-            skipFalsy: false,
-            useIdOnEmptyName: true,
-            triggerChange: false
-        };
+        attributeIgnore: 'data-transform-ignore',
+        attributeText: 'data-transform-text',
+        delimiter: '.',
+        deserializeClean: true,
+        inputs: ['input', 'select', 'textarea'],
+        skipDisabled: true,
+        skipFalsy: false,
+        skipReadOnly: false,
+        triggerChange: false,
+        useIdOnEmptyName: true
+    };
     
     /* Serialize */
     function serialize(formEl, options, nodeCallback) {
-        var el = makeElement(formEl),
+        var parent = makeElement(formEl),
             opts = getOptions(options),
-            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly),
-            result = {};
+            elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly),
+            result = {},
+            el, entry, key, textKey;
 
-        for (var i = 0, l = inputs.length; i < l; i++) {
-            var input = inputs[i],
-                key = input.name || opts.useIdOnEmptyName && input.id;
+        for (var i = 0, l = elements.length; i < l; i++) {
+            el = elements[i];
+            entry = null;
 
-            if (!key) continue;
-            var entry = null;
-            if (nodeCallback) entry = nodeCallback(input, key);
-            if (!entry) entry = getEntryFromInput(input, key)
-
-            if (!isValidValue(entry.value, opts.skipFalsy)) continue;
-            saveEntryToResult(result, entry, opts.delimiter);
+            if (textKey = el.getAttribute(_defaults.attributeText)) {
+                var textEntry = getTextEntryFromInput(el, textKey);
+                if (isValidValue(textEntry.value, opts.skipFalsy))
+                    saveEntryToResult(result, textEntry, opts.delimiter);
+            }
+            if (!isInput(el)) continue;
+            if (!(key = (el.name || opts.useIdOnEmptyName && el.id))) continue;
+            if (nodeCallback) entry = nodeCallback(el, key);
+            if (!entry) entry = getEntryFromInput(el, key);
+            if (isValidValue(entry.value, opts.skipFalsy))
+                saveEntryToResult(result, entry, opts.delimiter);
         }
         return result;
     }
 
-
     function isValidValue(value, skipFalsy) {
-        return !(typeof value === 'undefined' || value === null || (skipFalsy && (!value || (isArray(value) && !value.length))))
+        return !(typeof value === 'undefined' || value === null || (skipFalsy && (!value || (isArray(value) && !value.length))));
     }
 
-    function getEntryFromInput(input, key) {
-        var nodeType = input.type && input.type.toLowerCase(),
-            entry = { name: key, value: null };
+    function getEntryFromInput(el, key) {
+        var nodeType = el.type && el.type.toLowerCase(), value;
 
         switch (nodeType) {
             case 'radio':
-                if (input.checked)
-                    entry.value = input.value === 'on' ? true : input.value;
+                if (el.checked)
+                    value = el.value === 'on' ? true : el.value;
                 break;
             case 'checkbox':
-                entry.value = input.checked ? (input.value === 'on' ? true : input.value) : false;
+                value = el.checked ? (el.value === 'on' ? true : el.value) : false;
                 break;
             case 'select-multiple':
-                entry.value = [];
-                for (var i = 0, l = input.options.length; i < l; i++)
-                    if (input.options[i].selected) entry.value.push(input.options[i].value);
+                value = [];
+                for (var i = 0, l = el.options.length; i < l; i++)
+                    if (el.options[i].selected) value.push(el.options[i].value);
                 break;
             case 'file':
                 //Only interested in the filename (Chrome adds C:\fakepath\ for security anyway)
-                entry.value = input.value.split('\\').pop();
+                value = el.value.split('\\').pop();
                 break;
             case 'button':
             case 'submit':
             case 'reset':
                 break;
             default:
-                entry.value = input.value;
+                value = el.value;
         }
-        return entry;
+        return { name: key, value: value };
+    }
+
+    function getTextEntryFromInput(el, textKey) {
+        var nodeType = el.type && el.type.toLowerCase(), textValue;
+
+        switch (nodeType) {
+            case 'select-one':
+                textValue = el.options[el.selectedIndex].text;
+                break;
+            case 'select-multiple':
+                for (var i = 0, l = el.options.length; i < l; i++)
+                    if (el.options[i].selected)
+                        textValue = (textValue ? textValue + ',' : '') + el.options[i].text;
+                break;
+            default:
+                textValue = el.textContent;
+        }
+        return { name: textKey, value: textValue };
     }
 
     function parseString(str, delimiter) {
@@ -100,7 +125,7 @@
     }
 
     function saveEntryToResult(parent, entry, delimiter) {
-        //not not accept falsy values in array collections
+        //Don't accept falsy values in array collections. Check name first, then value
         if (/\[\]$/.test(entry.name) && !entry.value) return;
         var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
@@ -137,9 +162,9 @@
 
     /* Deserialize */
     function deserialize(formEl, data, options, nodeCallback) {
-        var el = makeElement(formEl),
+        var parent = makeElement(formEl),
             opts = getOptions(options),
-            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly);
+            elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly);
 
         if (!isObject(data)) {
             if (!isString(data)) return;
@@ -150,21 +175,28 @@
             }
         }
 
-        for (var i = 0, l = inputs.length; i < l; i++) {
-            var input = inputs[i],
-                key = input.name || opts.useIdOnEmptyName && input.id,
-                value = getFieldValue(key, opts.delimiter, data);
+        for (var i = 0, l = elements.length; i < l; i++) {
+            var el = elements[i], textKey;
 
-            if (typeof value === 'undefined' || value === null) {
-                clearInput(input, opts.triggerChange);
+            if (!isInput(el)) {
+                if (textKey = el.getAttribute(_defaults.attributeText))
+                    el.textContent = getObjectValue(textKey, opts.delimiter, data);
                 continue;
             }
-            var mutated = nodeCallback && nodeCallback(input, value);
-            if (!mutated) setValueToInput(input, value, opts.triggerChange);
+
+            var key = el.name || opts.useIdOnEmptyName && el.id,
+                value = getObjectValue(key, opts.delimiter, data);
+
+            if (typeof value === 'undefined' || value === null) {
+                opts.deserializeClean && clearInput(el, opts.triggerChange);
+                continue;
+            }
+            var mutated = nodeCallback && nodeCallback(el, value);
+            if (!mutated) setValueToInput(el, value, opts.triggerChange);
         }
     }
 
-    function getFieldValue(key, delimiter, ref) {
+    function getObjectValue(key, delimiter, ref) {
         if (!key) return;
         var parts = parseString(key, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
@@ -199,28 +231,28 @@
         return false;
     }
 
-    function setValueToInput(input, value, triggerChange) {
-        var nodeType = input.type && input.type.toLowerCase(),
+    function setValueToInput(el, value, triggerChange) {
+        var nodeType = el.type && el.type.toLowerCase(),
             doChange = true;
-        //In some cases 'value' will be converted toString because input.value is always a string.
+        //In some cases 'value' will be converted toString because el.value is always a string.
         switch (nodeType) {
             case 'radio':
-                if (value.toString() === input.value)
-                    input.checked = true;
+                if (value.toString() === el.value)
+                    el.checked = true;
                 else
                     doChange = false;
                 break;
             case 'checkbox':
-                input.checked = isArray(value)
-                    ? contains(value, input.value)
-                    : value === true || value.toString() === input.value;
+                el.checked = isArray(value)
+                    ? contains(value, el.value)
+                    : value === true || value.toString() === el.value;
                 break;
             case 'select-multiple':
                 if (isArray(value))
-                    for (var i = input.options.length; i--;)
-                        input.options[i].selected = contains(value, input.options[i].value);
+                    for (var i = el.options.length; i--;)
+                        el.options[i].selected = contains(value, el.options[i].value);
                 else
-                    input.value = value;
+                    el.value = value;
                 break;
             case 'button':
             case 'submit':
@@ -228,36 +260,36 @@
             case 'file':
                 break;
             default:
-                input.value = value;
+                el.value = value;
         }
         if (doChange && triggerChange)
-            triggerEvent(input, 'change');
+            triggerEvent(el, 'change');
     }
 
     /* Clear */
     function clear(formEl, options) {
-        var el = makeElement(formEl),
+        var parent = makeElement(formEl),
             opts = getOptions(options),
-            inputs = getFields(el, opts.skipDisabled, opts.skipReadOnly);
+            elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly);
 
-        for (var i = 0, l = inputs.length; i < l; i++)
-            clearInput(inputs[i], opts.triggerChange);
+        for (var i = 0, l = elements.length; i < l; i++)
+            clearInput(elements[i], opts.triggerChange);
     }
 
-    function clearInput(input, triggerChange) {
-        var nodeType = input.type && input.type.toLowerCase();
+    function clearInput(el, triggerChange) {
+        var nodeType = el.type && el.type.toLowerCase();
 
         switch (nodeType) {
             case 'select-one':
-                input.selectedIndex = 0;
+                el.selectedIndex = 0;
                 break;
 			case 'select-multiple':
-				for (var i = input.options.length; i--;)
-					input.options[i].selected = false;
+				for (var i = el.options.length; i--;)
+					el.options[i].selected = false;
 				break;
             case 'radio':
             case 'checkbox':
-                if (input.checked) input.checked = false;
+                if (el.checked) el.checked = false;
                 break;
             case 'button':
             case 'submit':
@@ -265,10 +297,10 @@
             case 'file':
                 break;
             default:
-                input.value = '';
+                el.value = '';
         }
         if (triggerChange)
-            triggerEvent(input, 'change');
+            triggerEvent(el, 'change');
     }
 
     /* Submit */
@@ -311,6 +343,9 @@
     function isString(s) {
         return typeof s === 'string' || s instanceof String;
     }
+    function isInput(el) {
+        return _defaults.inputs.indexOf(el.tagName.toLowerCase()) !== -1;
+    }
 
     function triggerEvent(el, type) {
         var e;
@@ -330,16 +365,16 @@
         return element;
     }
 
-    function getFields(parent, skipDisabled, skipReadOnly) {
-        var fields = ['input', 'select', 'textarea'];
-        for (var i = 0; i < fields.length; i++) {
-            var field = fields[i];
-            if (skipDisabled) field += ':not([disabled])';
-            if (skipReadOnly) field += ':not([readonly])';
-            field += ':not([data-trans-form="ignore"])';
-            fields[i] = field;
+    function getElements(parent, skipDisabled, skipReadOnly) {
+        var query = '[' + _defaults.attributeText + '],';
+        for (var i = 0, l = _defaults.inputs.length; i < l; i++) {
+            query += _defaults.inputs[i];
+            if (skipDisabled) query += ':not([disabled])';
+            if (skipReadOnly) query += ':not([readonly])';
+            query += ':not([' + _defaults.attributeIgnore + '])';
+            if (i !== l - 1) query += ',';
         }
-        return parent.querySelectorAll(fields.join(','));
+        return parent.querySelectorAll(query);
     }
 
     function getOptions(options) {

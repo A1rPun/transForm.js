@@ -11,15 +11,16 @@
 	btnSubmit.addEventListener('click', submit);
 	myForm.addEventListener('submit', function (e) { e.preventDefault() });
 
-	var allInputs = myForm.querySelectorAll('input,textarea,select');
+    var allInputs = myForm.querySelectorAll('input,textarea,select'),
+        handler = function () {
+            var me = this;
+            me.style.backgroundColor = '#BADA55';
+            setTimeout(function () {
+                me.style.backgroundColor = '';
+            }, 1000);
+        };
 	for (var i = allInputs.length; i--;)
-		allInputs[i].addEventListener('change', function () {
-			var me = this;
-			me.style.backgroundColor = '#BADA55';
-			setTimeout(function () {
-				me.style.backgroundColor = '';
-			}, 1000);
-		});
+	    allInputs[i].addEventListener('change', handler);
 
 	function getOptions() {
 		return transForm.serialize('#options', { useIdOnEmptyName: true });
