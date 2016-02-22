@@ -89,9 +89,9 @@
                 textValue = el.options[el.selectedIndex].text;
                 break;
             case 'select-multiple':
+                textValue = [];
                 for (var i = 0, l = el.options.length; i < l; i++)
-                    if (el.options[i].selected)
-                        textValue = (textValue ? textValue + ',' : '') + el.options[i].text;
+                    if (el.options[i].selected) textValue.push(el.options[i].text);
                 break;
             default:
                 textValue = el.textContent;
