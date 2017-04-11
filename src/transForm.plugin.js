@@ -318,16 +318,16 @@ var test = $('div').transForm('serialize');
 
     /* Helper functions */
     function isObject(obj) {
-        return $.type(s) === 'object';
+        return $.type(obj) === 'object';
     }
     function isNumber(n) {
-        return $.type(s) === 'number';
+        return $.type(n) === 'number';
     }
     function isArray(arr) {
-        return $.type(s) === 'array';
+        return $.type(arr) === 'array';
     }
     function isFunction(fn) {
-        return $.type(s) === 'function';
+        return $.type(fn) === 'function';
     }
     function isString(s) {
         return $.type(s) === 'string';
