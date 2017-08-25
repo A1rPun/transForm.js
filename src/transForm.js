@@ -19,7 +19,7 @@
         triggerChange: false,
         useIdOnEmptyName: true
     };
-    
+
     /* Serialize */
     function serialize(formEl, options, nodeCallback) {
         var parent = makeElement(formEl),
@@ -68,7 +68,7 @@
                     if (el.options[i].selected) value.push(el.options[i].value);
                 break;
             case 'file':
-                //Only interested in the filename (Chrome adds C:\fakepath\ for security anyway)
+                // Only interested in the filename (Chrome adds C:\fakepath\ for security anyway)
                 value = el.value.split('\\').pop();
                 break;
             case 'button':
@@ -109,13 +109,13 @@
             for (var j = 0; j < l; j++) {
                 var key = s[j];
                 if (!key) {
-                    //if the first one is empty, continue
+                    // if the first one is empty, continue
                     if (j === 0) continue;
-                    //if the undefined key is not the last part of the string, throw error
+                    // if the undefined key is not the last part of the string, throw error
                     if (j !== l - 1)
                         error('Undefined key is not the last part of the name > ' + str);
                 }
-                //strip "]" if its there
+                // strip "]" if its there
                 if (key && key[key.length - 1] === ']')
                     key = key.slice(0, -1);
                 result.push(key);
@@ -125,26 +125,26 @@
     }
 
     function saveEntryToResult(parent, entry, delimiter) {
-        //Don't accept falsy values in array collections. Check name first, then value
+        // Don't accept falsy values in array collections. Check name first, then value
         if (/\[\]$/.test(entry.name) && !entry.value) return;
         var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
             var part = parts[i];
-            //if last
+            // if last
             if (i === l - 1) {
                 parent[part] = entry.value;
             } else {
-                //check if the next part is an index
+                // check if the next part is an index
                 var index = parts[i + 1];
                 if (!index || isNumber(index)) {
                     if (!isArray(parent[part]))
                         parent[part] = [];
-                    //if second last
+                    // if second last
                     if (i === l - 2) {
-                        //array of values
+                        // array of values
                         parent[part].push(entry.value);
                     } else {
-                        //array of objects
+                        // array of objects
                         if (!isObject(parent[part][index]))
                             parent[part][index] = {};
                         parent = parent[part][index];
@@ -168,7 +168,7 @@
 
         if (!isObject(data)) {
             if (!isString(data)) return;
-            try { //Try to parse the passed data as JSON
+            try { // Try to parse the passed data as JSON
                 data = JSON.parse(data);
             } catch (e) {
                 error('Passed string is not a JSON string > ' + data);
@@ -204,7 +204,7 @@
             var part = ref[parts[i]];
 
             if (typeof part === 'undefined' || part === null) return;
-            //if last
+            // if last
             if (i === l - 1) {
                 return part;
             } else {
@@ -212,7 +212,7 @@
                 if (index === '') {
                     return part;
                 } else if (isNumber(index)) {
-                    //if second last
+                    // if second last
                     if (i === l - 2)
                         return part[index];
                     else
@@ -234,7 +234,7 @@
     function setValueToInput(el, value, triggerChange) {
         var nodeType = el.type && el.type.toLowerCase(),
             doChange = true;
-        //In some cases 'value' will be converted toString because el.value is always a string.
+        // In some cases 'value' will be converted toString because el.value is always a string.
         switch (nodeType) {
             case 'radio':
                 if (value.toString() === el.value)
@@ -283,10 +283,10 @@
             case 'select-one':
                 el.selectedIndex = 0;
                 break;
-			case 'select-multiple':
-				for (var i = el.options.length; i--;)
-					el.options[i].selected = false;
-				break;
+            case 'select-multiple':
+                for (var i = el.options.length; i--;)
+                    el.options[i].selected = false;
+                break;
             case 'radio':
             case 'checkbox':
                 if (el.checked) el.checked = false;
@@ -335,7 +335,7 @@
         return n - parseFloat(n) + 1 >= 0;
     }
     function isArray(arr) {
-        return !!(arr && arr.shift); //If it shifts like an array, its a duck.
+        return !!(arr && arr.shift); // If it shifts like an array, its a duck.
     }
     function isFunction(fn) {
         return typeof fn === 'function';
@@ -353,7 +353,7 @@
             e = document.createEvent('HTMLEvents');
             e.initEvent(type, true, true);
             el.dispatchEvent(e);
-        } else { //old IE
+        } else { // old IE
             e = document.createEventObject();
             el.fireEvent('on' + type, e);
         }
