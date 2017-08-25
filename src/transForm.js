@@ -48,7 +48,7 @@
     }
 
     function isValidValue(value, skipFalsy) {
-        return !(typeof value === 'undefined' || value === null || (skipFalsy && (!value || (isArray(value) && !value.length))));
+        return typeof value !== 'undefined' && (!skipFalsy || (value && (!isArray(value) || value.length)))
     }
 
     function getEntryFromInput(el, key) {
