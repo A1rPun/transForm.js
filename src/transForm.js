@@ -48,7 +48,7 @@
     }
 
     function isValidValue(value, skipFalsy) {
-        return typeof value !== 'undefined' && (!skipFalsy || (value && (!isArray(value) || value.length)))
+        return typeof value !== 'undefined' && (!skipFalsy || (value && (!isType(value, 'array') || value.length)))
     }
 
     function getEntryFromInput(el, key) {
@@ -136,8 +136,8 @@
             } else {
                 // check if the next part is an index
                 var index = parts[i + 1];
-                if (!index || isNumber(index)) {
-                    if (!isArray(parent[part]))
+                if (!index || isType(index, 'number')) {
+                    if (!isType(parent[part], 'array'))
                         parent[part] = [];
                     // if second last
                     if (i === l - 2) {
@@ -145,13 +145,13 @@
                         parent[part].push(entry.value);
                     } else {
                         // array of objects
-                        if (!isObject(parent[part][index]))
+                        if (!isType(parent[part][index], 'object'))
                             parent[part][index] = {};
                         parent = parent[part][index];
                     }
                     i++;
                 } else {
-                    if (!isObject(parent[part]))
+                    if (!isType(parent[part], 'object'))
                         parent[part] = {};
                     parent = parent[part];
                 }
@@ -166,8 +166,8 @@
             opts = getOptions(options),
             elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly);
 
-        if (!isObject(data)) {
-            if (!isString(data)) return;
+        if (!isType(data, 'object')) {
+            if (!isType(data, 'string')) return;
             try { // Try to parse the passed data as JSON
                 data = JSON.parse(data);
             } catch (e) {
@@ -211,7 +211,7 @@
                 var index = parts[i + 1];
                 if (index === '') {
                     return part;
-                } else if (isNumber(index)) {
+                } else if (isType(index, 'number')) {
                     // if second last
                     if (i === l - 2)
                         return part[index];
@@ -243,12 +243,12 @@
                     doChange = false;
                 break;
             case 'checkbox':
-                el.checked = isArray(value)
+                el.checked = isType(value, 'array')
                     ? contains(value, el.value)
                     : value === true || value.toString() === el.value;
                 break;
             case 'select-multiple':
-                if (isArray(value))
+                if (isType(value, 'array'))
                     for (var i = el.options.length; i--;)
                         el.options[i].selected = contains(value, el.options[i].value);
                 else
@@ -308,7 +308,7 @@
         var el = makeElement(formEl);
 
         if (!html5Submit) {
-            if (isFunction(el.submit))
+            if (isType(el.submit, 'function'))
                 el.submit();
             else
                 error('The element is not a form element > ' + formEl);
@@ -328,20 +328,9 @@
     }
 
     /* Helper functions */
-    function isObject(obj) {
-        return Object.prototype.toString.call(obj) === '[object Object]';
-    }
-    function isNumber(n) {
-        return n - parseFloat(n) + 1 >= 0;
-    }
-    function isArray(arr) {
-        return !!(arr && arr.shift); // If it shifts like an array, its a duck.
-    }
-    function isFunction(fn) {
-        return typeof fn === 'function';
-    }
-    function isString(s) {
-        return typeof s === 'string' || s instanceof String;
+    function isType(t, str) {
+        // This function gets the type of `t`, typeof and instanceof are unreliable (typeof null === 'object')
+        return Object.prototype.toString.call(t).match(/\s([a-zA-Z]+)/)[1].toLowerCase() === str;
     }
     function isInput(el) {
         return _defaults.inputs.indexOf(el.tagName.toLowerCase()) !== -1;
@@ -360,8 +349,8 @@
     }
 
     function makeElement(el) {
-        var element = isString(el) ? document.querySelector(el) || document.getElementById(el) : el;
-        if (!element) error('Element not found with ' + el);
+        var element = isType(el, 'string') ? document.querySelector(el) || document.getElementById(el) : el;
+        if (!element) error('Element not found > ' + el);
         return element;
     }
 
@@ -378,7 +367,7 @@
     }
 
     function getOptions(options) {
-        if (!isObject(options)) return _defaults;
+        if (!isType(options, 'object')) return _defaults;
         var o, opts = {};
         for (o in _defaults) opts[o] = _defaults[o];
         for (o in options) opts[o] = options[o];
