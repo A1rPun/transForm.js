@@ -95,7 +95,7 @@ Serializes all child inputs from any HTML element to a JavaScript object
 
 ### Params
 
-- formElement - Can be a `HTMLElement` or a querySelector string
+- parentElement - Can be a `HTMLElement` or a querySelector string
 - options - An object containing the serialize options
 - nodeCallback - Function that will be executed for every input (param: `input`, `key`). Return an `{ name: key, value: null }` object where the `name` is the property string of the resulting object & the `value` is any truthy JavaScript value (Ex: `{ name: text.input, value: true }` results in `{ text: { input: true } }` ). 
 
@@ -113,7 +113,7 @@ Deserializes a JavaScript object or a valid JSON string to the child inputs from
 
 ### Params
 
-- formElement - Can be a `HTMLElement` or a querySelector string
+- parentElement - Can be a `HTMLElement` or a querySelector string
 - data - The object that needs to be deserialized
 - options - An object containing the deserialize options
 - nodeCallback - Function that will be executed for every input (params: `input`, `value`) return a truthy value to skip deserializing that input, return nothing to apply the default deserialization.
@@ -131,7 +131,7 @@ Clears the value of all child inputs from any HTML element. Selects & Radio's wi
 
 ### Params
 
-- formElement - Can be a `HTMLElement` or a querySelector string
+- parentElement - Can be a `HTMLElement` or a querySelector string
 - options - An object containing the clear options
 
 ### Example
@@ -143,7 +143,7 @@ Submits a form element which triggers the `submit` event of the form. You can pr
 
 ### Params
 
-- formElement - Can be a `HTMLElement` or a querySelector string
+- parentElement - Can be a `HTMLElement` or a querySelector string
 - HTML5Submit - HTML5 validation triggers only on submit button click, if there is no submit button it will create one (destroyed afterwards).
 
 ### Example
@@ -171,9 +171,10 @@ Overrides the default options in the `transForm` instance.
 
 # TODO's
 
-- Gulp for automated
+- Npm for automated
     - Distribution
-    - Testing & Code coverage
+    - Unit tests
+	- Code coverage
 - Online examples / docs
 	
 

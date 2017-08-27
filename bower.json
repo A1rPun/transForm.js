@@ -1,10 +1,10 @@
 {
   "name": "transForm.js",
-  "description": "Javascript library for manipulating html forms",
-  "version": "1.1.0",
+  "description": "Javascript library that maps html forms to complex objects and vice versa",
+  "version": "1.1.1",
   "main": "src/transForm.js",
   "license": "MIT",
-  "keywords": ["form","serialize","deserialize","clear","submit","html","javascript"],
+  "keywords": ["transform","form","serialize","deserialize","clear","submit","html","javascript"],
   "authors": [
     { "name": "A1rPun", "homepage": "http://www.A1rPun.com"}
   ],
