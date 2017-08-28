@@ -18,70 +18,74 @@ Just add `transForm.js` to your HTML page like this
     
 Then use the `transForm` namespace to use the awesome!
 
+### Install with NPM
+```
+npm install --save trans-form
+```
 ### Install with bower
-
-    bower install --save trans-form
-    
+```
+bower install --save trans-form
+```
 Add the source to the HTML:
-    
-    <script src="bower_components/trans-form/dist/transForm.min.js"></script>
-
+```html    
+<script src="bower_components/trans-form/dist/transForm.min.js"></script>
+```
 ## Usage
 
 Basic example:
-
-	<form id="transform">
-	  <input name="test" value="transform">
-	</form>
-
+```html
+<form id="transform">
+  <input name="test" value="transform">
+</form>
+```
 Pass a query string or an `HTMLElement` to any of the functions.
 The parent element can be any element but `.submit()` will only work with `<form>` elements.
-
-	var obj = transForm.serialize('#transform');
-
+```js
+var obj = transForm.serialize('#transform');
+```
 Variable `obj` now holds this object:
-
-	{ test: 'transform' }
-
+```js
+{ test: 'transform' }
+```
 To deserialize this object into the form use the same structure
 
 	transForm.deserialize('#transform', obj);
 
 Using the `.` delimiter, one can specify an object inside the result object.
 Other structures:
-
-	<form id="transform">
-		<input name="person.name" value="Thom Bakker">
-		<input name="person[job]" value="Programmer">
-		<input name="person.hobbies[]" type="checkbox" value="Programming" checked>
-		<input name="person.hobbies[]" type="checkbox" value="Gaming">
-		<input name="person.address[0].street" value="Inspirationstreet">
-		<input name="person.address[1].street" value="Objectionlane">
-		<input name="t.r.a.n.s.f.o.r.m" value="foo">
-	</form>
-
+```html
+<form id="transform">
+  <input name="person.name" value="Thom Bakker">
+  <input name="person[job]" value="Programmer">
+  <input name="person.hobbies[]" type="checkbox" value="Programming" checked>
+  <input name="person.hobbies[]" type="checkbox" value="Gaming">
+  <input name="person.address[0].street" value="Inspirationstreet">
+  <input name="person.address[1].street" value="Objectionlane">
+  <input name="t.r.a.n.s.f.o.r.m" value="foo">
+</form>
+```
 Outputs:
-
-	{
-	  person: {
-	    name: 'Thom Bakker',
-	    job: 'Programmer',
-	    hobbies: [
-	      'Programming'
-	    ],
-	    address: [{
-	      street: 'Inspirationstreet'
-	    },{
-	      street: 'Objectionlane'
-	    }]
-	  },
-	  t:{r:{a:{n:{s:{f:{o:{r:{m: 'foo' }}}}}}}}
-	}
-
+```js
+{
+  person: {
+    name: 'Thom Bakker',
+    job: 'Programmer',
+    hobbies: [
+      'Programming'
+    ],
+    address: [{
+      street: 'Inspirationstreet'
+    },{
+      street: 'Objectionlane'
+    }]
+  },
+  t:{r:{a:{n:{s:{f:{o:{r:{m: 'foo' }}}}}}}}
+}
+```
 To ignore an input, select or textarea you can add the ignore data attribute like this:
-
-    <input name="ignoreme" data-transform-ignore />
-
+```html
+<input name="ignoreme" data-transform-ignore />
+```
 ## History
 This project is inspired by [maxatwork/form2js](https://github.com/maxatwork/form2js).  
 transForm is even compatible with the object notation of form2js/js2form.
