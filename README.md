@@ -13,14 +13,18 @@ It's goal is to easily transform html forms to structured javascript objects and
 ## Installation
 
 Just add `transForm.js` to your HTML page like this
-
-	<script src="transForm.js"></script>
-    
+```html
+<script src="transForm.js"></script>
+```
 Then use the `transForm` namespace to use the awesome!
 
 ### Install with NPM
 ```
 npm install --save trans-form
+```
+Add the source to the HTML:
+```html    
+<script src="node_modules/trans-form/dist/transForm.min.js"></script>
 ```
 ### Install with bower
 ```
@@ -103,14 +107,15 @@ Serializes all child inputs from any HTML element to a JavaScript object
 - nodeCallback - Function that will be executed for every input (param: `input`, `entry`). Return the entry `{ name, value }` object where the `name` is the property string of the resulting object & the `value` is any value (Ex: `{ name: 'text.input', value: true }` results in `{ text: { input: true } }` ). 
 
 ### Example
-
-	<form id="myForm">
-	  <input name="test" value="transform">
-	</form>
-
-	var myFormObject = transForm.serialize('#myForm');
-	console.log(myFormObject.test); //'transform'
-
+```html
+<form id="myForm">
+  <input name="test" value="transform">
+</form>
+```
+```js
+var myFormObject = transForm.serialize('#myForm');
+console.log(myFormObject.test); //'transform'
+```
 ## <a name="deserialize">`transForm.deserialize()`
 Deserializes a JavaScript object or a valid JSON string to the child inputs from any HTML element
 
@@ -122,13 +127,14 @@ Deserializes a JavaScript object or a valid JSON string to the child inputs from
 - nodeCallback - Function that will be executed for every input (params: `input`, `value`) return a truthy value (Ex: `return true`) to skip deserializing that input, return nothing to apply the default deserialization.
 
 ### Example
-
-	<form id="myForm">
-	  <input name="test">
-	</form>
-
-	transForm.deserialize('#myForm', { test: 'transform' });
-
+```html
+<form id="myForm">
+  <input name="test">
+</form>
+```
+```js
+transForm.deserialize('#myForm', { test: 'transform' });
+```
 ## <a name="clear">`transForm.clear()`
 Clears the value of all child inputs from any HTML element. Selects & Radio's will be defaulted to the first option.
 
@@ -138,9 +144,9 @@ Clears the value of all child inputs from any HTML element. Selects & Radio's wi
 - options - An object containing the clear options
 
 ### Example
-
-	transForm.clear('#myForm');
-
+```js
+transForm.clear('#myForm');
+```
 ## <a name="submit">`transForm.submit()`
 Submits a form element which triggers the `submit` event of the form. You can programmatically trigger the HTML5 validation of the form by passing `true` as 2nd param, this creates a button on the fly when there is no submit button inside the form.
 
@@ -150,9 +156,9 @@ Submits a form element which triggers the `submit` event of the form. You can pr
 - HTML5Submit - HTML5 validation triggers only on submit button click, if there is no submit button it will create one (destroyed afterwards).
 
 ### Example
-
-	transForm.submit('#myForm', true);
-    
+```js
+transForm.submit('#myForm', true);
+```
 ## <a name="setdefaults">`transForm.setDefaults()`
 Overrides the default options in the `transForm` instance.
 
@@ -161,17 +167,17 @@ Overrides the default options in the `transForm` instance.
 - defaults - An object containing the default options
 
 ### Example
-
-	//These are the current defaults
-	transForm.setDefaults({
-	  delimiter: '.', //The delimiter seperates the object keys (serialize, deserialize)
-	  skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear)
-	  skipReadOnly: false, //Skip inputs that are readonly (serialize, deserialize, clear)
-	  skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
-	  useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
-	  triggerChange: false, //Fires the change listener for every field when deserializing (even if the value is not changed) (deserialize)
-	});
-
+```js
+// These are the current defaults
+transForm.setDefaults({
+  delimiter: '.', //The delimiter seperates the object keys (serialize, deserialize)
+  skipDisabled: true, //Skip inputs that are disabled (serialize, deserialize, clear)
+  skipReadOnly: false, //Skip inputs that are readonly (serialize, deserialize, clear)
+  skipFalsy: false, //Skip inputs that have falsy values (0, false, null, undefined, '') (serialize)
+  useIdOnEmptyName: false, //If an input has no name attribute it will fallback to its id attribute (serialize, deserialize)
+  triggerChange: false, //Fires the change listener for every field when deserializing (even if the value is not changed) (deserialize)
+});
+```
 # TODO's
 
 - Npm for automated
