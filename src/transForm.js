@@ -28,7 +28,7 @@
             opts = getOptions(options),
             elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly),
             result = {},
-            el, entry, key, textKey;
+            el, key, textKey;
         for (var i = 0, l = elements.length; i < l; i++) {
             el = elements[i];
             entry = null;
@@ -37,13 +37,14 @@
                 if (isValidValue(textEntry.value, opts.skipFalsy))
                     saveEntryToResult(result, textEntry, opts.delimiter);
             }
-            if (nodeCallback) entry = nodeCallback(el, key);
-            if (!entry) entry = getEntryFromInput(el, key);
-            if (isValidValue(entry.value, opts.skipFalsy))
             if (!isInput(el))
                 continue;
             if (!(key = (el.name || opts.useIdOnEmptyName && el.id)))
                 continue;
+            var entry = getEntryFromInput(el, key);
+            if (nodeCallback)
+                entry = nodeCallback(el, entry);
+            if (entry && isValidValue(entry.value, opts.skipFalsy))
                 saveEntryToResult(result, entry, opts.delimiter);
         }
         return result;

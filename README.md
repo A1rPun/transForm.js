@@ -18,14 +18,13 @@ Just add `transForm.js` to your HTML page like this
     
 Then use the `transForm` namespace to use the awesome!
 
-
 ### Install with bower
 
     bower install --save trans-form
     
 Add the source to the HTML:
     
-    <script src="bower_components/trans-form/src/transForm.js"></script>
+    <script src="bower_components/trans-form/dist/transForm.min.js"></script>
 
 ## Usage
 
@@ -97,7 +96,7 @@ Serializes all child inputs from any HTML element to a JavaScript object
 
 - parentElement - Can be a `HTMLElement` or a querySelector string
 - options - An object containing the serialize options
-- nodeCallback - Function that will be executed for every input (param: `input`, `key`). Return an `{ name: key, value: null }` object where the `name` is the property string of the resulting object & the `value` is any truthy JavaScript value (Ex: `{ name: text.input, value: true }` results in `{ text: { input: true } }` ). 
+- nodeCallback - Function that will be executed for every input (param: `input`, `entry`). Return the entry `{ name, value }` object where the `name` is the property string of the resulting object & the `value` is any value (Ex: `{ name: 'text.input', value: true }` results in `{ text: { input: true } }` ). 
 
 ### Example
 
@@ -116,7 +115,7 @@ Deserializes a JavaScript object or a valid JSON string to the child inputs from
 - parentElement - Can be a `HTMLElement` or a querySelector string
 - data - The object that needs to be deserialized
 - options - An object containing the deserialize options
-- nodeCallback - Function that will be executed for every input (params: `input`, `value`) return a truthy value to skip deserializing that input, return nothing to apply the default deserialization.
+- nodeCallback - Function that will be executed for every input (params: `input`, `value`) return a truthy value (Ex: `return true`) to skip deserializing that input, return nothing to apply the default deserialization.
 
 ### Example
 
