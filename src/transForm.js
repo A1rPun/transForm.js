@@ -1,6 +1,8 @@
 ﻿(function (name, definition) {
-    if (typeof module != 'undefined') module.exports = definition();
-    else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
+    if (typeof module != 'undefined')
+        module.exports = definition();
+    else if (typeof define == 'function' && typeof define.amd == 'object')
+        define(definition);
     else {
         var noConflict = this[name];
         this[name] = definition();
@@ -17,7 +19,7 @@
         skipFalsy: false,
         skipReadOnly: false,
         triggerChange: false,
-        useIdOnEmptyName: true
+        useIdOnEmptyName: true,
     };
 
     /* Serialize */
@@ -27,33 +29,32 @@
             elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly),
             result = {},
             el, entry, key, textKey;
-
         for (var i = 0, l = elements.length; i < l; i++) {
             el = elements[i];
             entry = null;
-
             if (textKey = el.getAttribute(_defaults.attributeText)) {
                 var textEntry = getTextEntryFromInput(el, textKey);
                 if (isValidValue(textEntry.value, opts.skipFalsy))
                     saveEntryToResult(result, textEntry, opts.delimiter);
             }
-            if (!isInput(el)) continue;
-            if (!(key = (el.name || opts.useIdOnEmptyName && el.id))) continue;
             if (nodeCallback) entry = nodeCallback(el, key);
             if (!entry) entry = getEntryFromInput(el, key);
             if (isValidValue(entry.value, opts.skipFalsy))
+            if (!isInput(el))
+                continue;
+            if (!(key = (el.name || opts.useIdOnEmptyName && el.id)))
+                continue;
                 saveEntryToResult(result, entry, opts.delimiter);
         }
         return result;
     }
 
     function isValidValue(value, skipFalsy) {
-        return typeof value !== 'undefined' && (!skipFalsy || (value && (!isType(value, 'array') || value.length)))
+        return !isType(value, 'undefined') && (!skipFalsy || (value && (!isType(value, 'array') || value.length)));
     }
 
     function getEntryFromInput(el, key) {
         var nodeType = el.type && el.type.toLowerCase(), value;
-
         switch (nodeType) {
             case 'radio':
                 if (el.checked)
@@ -65,7 +66,8 @@
             case 'select-multiple':
                 value = [];
                 for (var i = 0, l = el.options.length; i < l; i++)
-                    if (el.options[i].selected) value.push(el.options[i].value);
+                    if (el.options[i].selected)
+                        value.push(el.options[i].value);
                 break;
             case 'file':
                 // Only interested in the filename (Chrome adds C:\fakepath\ for security anyway)
@@ -83,7 +85,6 @@
 
     function getTextEntryFromInput(el, textKey) {
         var nodeType = el.type && el.type.toLowerCase(), textValue;
-
         switch (nodeType) {
             case 'select-one':
                 textValue = el.options[el.selectedIndex].text;
@@ -91,7 +92,8 @@
             case 'select-multiple':
                 textValue = [];
                 for (var i = 0, l = el.options.length; i < l; i++)
-                    if (el.options[i].selected) textValue.push(el.options[i].text);
+                    if (el.options[i].selected)
+                        textValue.push(el.options[i].text);
                 break;
             default:
                 textValue = el.textContent;
@@ -110,7 +112,8 @@
                 var key = s[j];
                 if (!key) {
                     // if the first one is empty, continue
-                    if (j === 0) continue;
+                    if (j === 0)
+                        continue;
                     // if the undefined key is not the last part of the string, throw error
                     if (j !== l - 1)
                         error('Undefined key is not the last part of the name > ' + str);
@@ -126,10 +129,12 @@
 
     function saveEntryToResult(parent, entry, delimiter) {
         // Don't accept falsy values in array collections. Check name first, then value
-        if (/\[\]$/.test(entry.name) && !entry.value) return;
+        if (/\[\]$/.test(entry.name) && !entry.value)
+            return;
+        var part;
         var parts = parseString(entry.name, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
-            var part = parts[i];
+            part = parts[i];
             // if last
             if (i === l - 1) {
                 parent[part] = entry.value;
@@ -165,45 +170,44 @@
         var parent = makeElement(formEl),
             opts = getOptions(options),
             elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly);
-
         if (!isType(data, 'object')) {
-            if (!isType(data, 'string')) return;
+            if (!isType(data, 'string'))
+                return;
             try { // Try to parse the passed data as JSON
                 data = JSON.parse(data);
             } catch (e) {
                 error('Passed string is not a JSON string > ' + data);
             }
         }
-
         for (var i = 0, l = elements.length; i < l; i++) {
             var el = elements[i], textKey;
-
             if (!isInput(el)) {
                 if (textKey = el.getAttribute(_defaults.attributeText))
                     el.textContent = getObjectValue(textKey, opts.delimiter, data);
                 continue;
             }
-
             var key = el.name || opts.useIdOnEmptyName && el.id,
                 value = getObjectValue(key, opts.delimiter, data);
-
-            if (typeof value === 'undefined' || value === null) {
+            if (isType(value, 'undefined') || value === null) {
                 opts.deserializeClean && clearInput(el, opts.triggerChange);
                 continue;
             }
             var mutated = nodeCallback && nodeCallback(el, value);
-            if (!mutated) setValueToInput(el, value, opts.triggerChange);
+            if (!mutated)
+                setValueToInput(el, value, opts.triggerChange);
         }
     }
 
     function getObjectValue(key, delimiter, ref) {
-        if (!key) return;
+        if (!key)
+            return;
         var parts = parseString(key, delimiter);
         for (var i = 0, l = parts.length; i < l; i++) {
-            if (!ref) return;
+            if (!ref)
+                return;
             var part = ref[parts[i]];
-
-            if (typeof part === 'undefined' || part === null) return;
+            if (isType(part, 'undefined') || part === null)
+                return;
             // if last
             if (i === l - 1) {
                 return part;
@@ -227,7 +231,8 @@
 
     function contains(array, value) {
         for (var i = array.length; i--;)
-            if (array[i].toString() === value) return true;
+            if (array[i].toString() === value)
+                return true;
         return false;
     }
 
@@ -271,14 +276,12 @@
         var parent = makeElement(formEl),
             opts = getOptions(options),
             elements = getElements(parent, opts.skipDisabled, opts.skipReadOnly);
-
         for (var i = 0, l = elements.length; i < l; i++)
             clearInput(elements[i], opts.triggerChange);
     }
 
     function clearInput(el, triggerChange) {
         var nodeType = el.type && el.type.toLowerCase();
-
         switch (nodeType) {
             case 'select-one':
                 el.selectedIndex = 0;
@@ -289,7 +292,8 @@
                 break;
             case 'radio':
             case 'checkbox':
-                if (el.checked) el.checked = false;
+                if (el.checked)
+                    el.checked = false;
                 break;
             case 'button':
             case 'submit':
@@ -306,7 +310,6 @@
     /* Submit */
     function submit(formEl, html5Submit) {
         var el = makeElement(formEl);
-
         if (!html5Submit) {
             if (isType(el.submit, 'function'))
                 el.submit();
@@ -314,7 +317,6 @@
                 error('The element is not a form element > ' + formEl);
             return;
         }
-
         var clean, btn = el.querySelector('[type="submit"]');
         if (!btn) {
             clean = true;
@@ -324,7 +326,8 @@
             el.appendChild(btn);
         }
         triggerEvent(btn, 'click');
-        if (clean) el.removeChild(btn);
+        if (clean)
+            el.removeChild(btn);
     }
 
     /* Helper functions */
@@ -332,6 +335,7 @@
         // This function gets the type of `t`, typeof and instanceof are unreliable (typeof null === 'object')
         return Object.prototype.toString.call(t).match(/\s([a-zA-Z]+)/)[1].toLowerCase() === str;
     }
+
     function isInput(el) {
         return _defaults.inputs.indexOf(el.tagName.toLowerCase()) !== -1;
     }
@@ -350,7 +354,8 @@
 
     function makeElement(el) {
         var element = isType(el, 'string') ? document.querySelector(el) || document.getElementById(el) : el;
-        if (!element) error('Element not found > ' + el);
+        if (!element)
+            error('Element not found > ' + el);
         return element;
     }
 
@@ -358,16 +363,20 @@
         var query = '[' + _defaults.attributeText + '],';
         for (var i = 0, l = _defaults.inputs.length; i < l; i++) {
             query += _defaults.inputs[i];
-            if (skipDisabled) query += ':not([disabled])';
-            if (skipReadOnly) query += ':not([readonly])';
+            if (skipDisabled)
+                query += ':not([disabled])';
+            if (skipReadOnly)
+                query += ':not([readonly])';
             query += ':not([' + _defaults.attributeIgnore + '])';
-            if (i !== l - 1) query += ',';
+            if (i !== l - 1)
+                query += ',';
         }
         return parent.querySelectorAll(query);
     }
 
     function getOptions(options) {
-        if (!isType(options, 'object')) return _defaults;
+        if (!isType(options, 'object'))
+            return _defaults;
         var o, opts = {};
         for (o in _defaults) opts[o] = _defaults[o];
         for (o in options) opts[o] = options[o];

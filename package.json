@@ -3,11 +3,23 @@
   "version": "1.1.1",
   "description": "Javascript library that maps html forms to complex objects and vice versa",
   "main": "src/transForm.js",
-  "keywords": ["transform","form","serialize","deserialize","clear","submit","html","javascript"],
+  "keywords": [
+    "transform",
+    "form",
+    "serialize",
+    "deserialize",
+    "clear",
+    "submit",
+    "html",
+    "javascript"
+  ],
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-jshint": "^2.0.4",
     "gulp-rename": "^1.2.2",
-    "gulp-uglify": "^3.0.0"
+    "gulp-size": "^2.1.0",
+    "gulp-uglify": "^3.0.0",
+    "jshint": "^2.9.5"
   },
   "repository": {
     "type": "git",
