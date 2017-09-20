@@ -1,4 +1,4 @@
-﻿(function (name, definition) {
+(function (name, definition) {
     if (typeof module != 'undefined')
         module.exports = definition();
     else if (typeof define == 'function' && typeof define.amd == 'object')
@@ -19,7 +19,7 @@
         skipFalsy: false,
         skipReadOnly: false,
         triggerChange: false,
-        useIdOnEmptyName: true,
+        useIdOnEmptyName: true
     };
 
     /* Serialize */
@@ -142,7 +142,13 @@
             } else {
                 // check if the next part is an index
                 var index = parts[i + 1];
-                if (!index || isType(index, 'number')) {
+                var a = !index;
+                var b = isType(index, 'number');
+                var c = typeof (Number(index)) === 'number';
+                var d = Number.isNaN(Number(index));
+                var e = !b && (c && !d);
+
+                if ( a || b || e) {
                     if (!isType(parent[part], 'array'))
                         parent[part] = [];
                     // if second last
