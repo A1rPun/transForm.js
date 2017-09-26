@@ -142,7 +142,7 @@
             } else {
                 // check if the next part is an index
                 var index = parts[i + 1];
-                if (!index || isType(index, 'number')) {
+                if (!index || isNumber(index)) {
                     if (!isType(parent[part], 'array'))
                         parent[part] = [];
                     // if second last
@@ -216,7 +216,7 @@
                 var index = parts[i + 1];
                 if (index === '') {
                     return part;
-                } else if (isType(index, 'number')) {
+                } else if (isNumber(index)) {
                     // if second last
                     if (i === l - 2)
                         return part[index];
@@ -335,6 +335,10 @@
     function isType(t, str) {
         // This function gets the type of `t`, typeof and instanceof are unreliable (typeof null === 'object')
         return Object.prototype.toString.call(t).match(/\s([a-zA-Z]+)/)[1].toLowerCase() === str;
+    }
+
+    function isNumber(n) {
+        return n - parseFloat(n) + 1 >= 0;
     }
 
     function isInput(el) {
